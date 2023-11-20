@@ -1,18 +1,17 @@
 package cloudFileStorage.security;
 
-import cloudFileStorage.models.AppUser;
+import cloudFileStorage.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-public class AppUserDetails implements UserDetails {
-    private final AppUser appUser;
+public class UserDetails implements org.springframework.security.core.userdetails.UserDetails {
+    private final User user;
 
     @Autowired
-    public AppUserDetails(AppUser appUser) {
-        this.appUser = appUser;
+    public UserDetails(User user) {
+        this.user = user;
     }
 
     @Override
@@ -22,12 +21,12 @@ public class AppUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.appUser.getPassword();
+        return this.user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return this.appUser.getUsername();
+        return this.user.getUsername();
     }
 
     @Override
