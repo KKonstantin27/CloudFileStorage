@@ -17,12 +17,12 @@ public class User {
     private int id;
 
     @Column(name = "username", unique = true, nullable = false)
-    @NotEmpty(message = "Имя пользователя не может быть пустым")
-    @Size(min = 4, max = 20, message = "Длина имени пользователя должна быть от 4 до 20 символов")
+//    @NotEmpty(message = "Имя пользователя не может быть пустым")
+//    @Size(min = 4, max = 20, message = "Длина имени пользователя должна быть от 4 до 20 символов")
     private String username;
 
     @Column(name = "password", nullable = false)
-    @Size(min = 8, max = 20, message = "Длина пароля должна быть от 8 до 20 символов")
+//    @Size(min = 8, max = 20, message = "Длина пароля должна быть от 8 до 20 символов")
     private String password;
 
     public User(String username, String password) {
