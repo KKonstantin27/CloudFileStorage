@@ -10,11 +10,11 @@ import org.springframework.validation.Validator;
 import java.util.Optional;
 
 @Component
-public class usersValidator implements Validator {
+public class UsersValidator implements Validator {
     private final UserDetailsService userDetailsService;
 
     @Autowired
-    public usersValidator(UserDetailsService userDetailsService) {
+    public UsersValidator(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 

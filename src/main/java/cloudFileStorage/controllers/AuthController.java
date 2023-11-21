@@ -1,5 +1,6 @@
 package cloudFileStorage.controllers;
 
+import cloudFileStorage.dto.UserDTO;
 import cloudFileStorage.models.User;
 import cloudFileStorage.services.UserDetailsService;
 import jakarta.validation.Valid;
@@ -32,7 +33,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute @Valid User user, BindingResult bindingResult) {
+    public String register(@ModelAttribute @Valid UserDTO userDTO, BindingResult bindingResult) {
 //        userDetailsService.signUp();
         return "auth/register";
     }
