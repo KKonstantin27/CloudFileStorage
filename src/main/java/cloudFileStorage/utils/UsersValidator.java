@@ -1,5 +1,6 @@
 package cloudFileStorage.utils;
 
+import cloudFileStorage.dto.UserDTO;
 import cloudFileStorage.models.User;
 import cloudFileStorage.services.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,13 @@ public class UsersValidator implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-        User user = (User) target;
-        Optional<User> userOptional = userDetailsService.loadUserOptionalByUsername(user.getUsername());
+        UserDTO userDTO = (UserDTO) target;
+        Optional<User> userOptional = userDetailsService.loadUserOptionalByUsername(userDTO.getUsername());
         if (userOptional.isEmpty()) {
             errors.rejectValue("username", "", "Пользователь с таким именем уже существует");
+        }
+        if (!userDTO.getPassword().equals(userDTO.getRepeatPassword())) {
+            errors.rejectValue("password", "", "Ввёденные пароли не совпадают");
         }
     }
 }

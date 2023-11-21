@@ -25,6 +25,9 @@ public class User {
 //    @Size(min = 8, max = 20, message = "Длина пароля должна быть от 8 до 20 символов")
     private String password;
 
+    @Column(name = "role")
+    private String role;
+
     public User(String username, String password) {
         this.username = username;
         this.password = password;

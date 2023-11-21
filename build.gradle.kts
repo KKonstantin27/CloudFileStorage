@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.springframework.session:spring-session-data-redis")
 	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 	implementation("org.modelmapper:modelmapper:3.2.0")
+	implementation("com.github.t3hnar:scala-bcrypt_2.13:4.3.0")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 	runtimeOnly("com.mysql:mysql-connector-j")

@@ -1,8 +1,9 @@
 package cloudFileStorage.controllers;
 
 import cloudFileStorage.dto.UserDTO;
-import cloudFileStorage.models.User;
 import cloudFileStorage.services.UserDetailsService;
+import cloudFileStorage.utils.UsersMapper;
+import cloudFileStorage.utils.UsersValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,10 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/auth")
 public class AuthController {
     private final UserDetailsService userDetailsService;
+    private final UsersValidator usersValidator;
+    private final UsersMapper usersMapper;
 
     @Autowired
-    public AuthController(UserDetailsService userDetailsService) {
+    public AuthController(UserDetailsService userDetailsService, UsersValidator usersValidator, UsersMapper usersMapper) {
         this.userDetailsService = userDetailsService;
+        this.usersValidator = usersValidator;
+        this.usersMapper = usersMapper;
     }
 
     @GetMapping("/login")
@@ -34,7 +39,13 @@ public class AuthController {
 
     @PostMapping("/register")
     public String register(@ModelAttribute @Valid UserDTO userDTO, BindingResult bindingResult) {
-//        userDetailsService.signUp();
-        return "auth/register";
+        usersValidator.validate(userDTO, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            return "auth/register";
+        }
+
+        userDetailsService.signUp(usersMapper.convertToUser(userDTO));
+        return "redirect:auth/success";
     }
 }
