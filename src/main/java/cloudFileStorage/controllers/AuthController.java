@@ -27,22 +27,22 @@ public class AuthController {
         this.usersMapper = usersMapper;
     }
 
-    @GetMapping("/login")
+    @GetMapping("/signIn")
     public String getAuthPage() {
-        return "auth/login";
+        return "auth/signIn";
     }
 
-    @GetMapping("/register")
+    @GetMapping("/signUp")
     public String getRegistrationPage() {
-        return "auth/register";
+        return "auth/signUp";
     }
 
-    @PostMapping("/register")
+    @PostMapping("/signUp")
     public String register(@ModelAttribute @Valid UserDTO userDTO, BindingResult bindingResult) {
         usersValidator.validate(userDTO, bindingResult);
 
         if (bindingResult.hasErrors()) {
-            return "auth/register";
+            return "auth/signUp";
         }
 
         userDetailsService.signUp(usersMapper.convertToUser(userDTO));

@@ -1,7 +1,17 @@
+version: "3"
 services:
+#  cloudFileStorage:
+#    build: ./src
+#    ports:
+#      - '8080:8080'
+#    volumes:
+#      - ./src:/cloudFileStorage
+
   mysql:
     image: 'mysql:latest'
     restart: always
+    ports:
+      - '3306:3306'
     environment:
       - 'MYSQL_DATABASE=CloudFileStorage'
       - 'MYSQL_ROOT_PASSWORD=password'

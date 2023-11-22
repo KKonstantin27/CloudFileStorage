@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/styles.css}" type="text/css">
+</head>
+<body>
+<div class="fluid-container">
+    <div th:replace="~{headers :: unauthorized-user-header-for-signIn-signUp-pages}"></div>
+    <div class="row justify-content-center mt-5">
+        <div class="col-3 p-4 signUp-signIn-areas">
+            <h2 class="text-center dark-text">Sign up form</h2>
+            <form class="justify-content-center dark-text" method="POST" th:action="@{/auth/signUp}">
+                <label class="col-12 mt-2" for="username">Input your username</label>
+                <input class="col-12" id="username" type="text" placeholder="Username" required>
+                <label class="col-12 mt-2" for="password">Input your password</label>
+                <input class="col-12" id="password" type="password" placeholder="Password" required>
+                <label class="col-12 mt-2" for="repeatPassword">Repeat your password</label>
+                <input class="col-12" id="repeatPassword" type="password" placeholder="Password" required>
+                <button class="btn col-12 mt-4 registration-button">Sign up</button>
+            </form>
+            <div class="row justify-content-center">
+                <a class="dark-text text-center mt-3" th:href="@{/auth/signIn}">Already have an account</a>
+            </div>
+        </div>
+    </div>
+
+
+<!--    <div class="justify-content-center row mt-5">-->
+<!--        <form class="justify-content-center d-flex col-4">-->
+<!--            <label class="col-12" for="username">Input your username</label>-->
+<!--            <input class="col-12" type="text" id="username" placeholder="Username">-->
+<!--            <label class="col-12" for="password">Input your password</label>-->
+<!--            <input class="col-12" type="text" id="password" placeholder="Password">-->
+<!--            <label class="col-12" for="repeatPassword">Repeat your password</label>-->
+<!--            <input class="col-12" type="text" id="repeatPassword" placeholder="Password">-->
+<!--            <button>Sign up</button>-->
+<!--        </form>-->
+<!--    </div>-->
+</div>
+</body>
+</html>

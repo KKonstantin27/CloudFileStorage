@@ -1,0 +1,47 @@
+body {
+    background-color: #e0e2e1;
+}
+
+button {
+    border-radius: 5px;
+    border: none;
+}
+
+
+
+.header-signIn-button:hover {
+    color: #ffffff;
+    background-color: #696969;
+}
+
+.dark-text {
+    color: #454545;
+}
+
+.header-signIn-button {
+    background-color: #e0e2e1;
+}
+
+.header-getStarted-button, .registration-button {
+    background-color: #454545;
+    color: #e0e2e1;
+}
+
+.header-getStarted-button:hover, .registration-button:hover {
+    color: #000000;
+    background-color: #696969;
+}
+
+.signUp-signIn-areas {
+    background-color: white;
+    border-radius: 10px;
+    border-color: black;
+}
+
+a:hover {
+    color: #696969;
+}
+
+a:visited {
+    color: #454545;
+}
