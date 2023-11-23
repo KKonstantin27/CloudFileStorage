@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,7 +41,9 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/css/**", "/images/**").permitAll()
                 .requestMatchers("/", "/auth/signIn", "/auth/signUp", "/auth/success").permitAll()
+//                .anyRequest().permitAll());
                 .anyRequest().hasAuthority("USER"));
+
 
         http.formLogin(formLogin -> formLogin
                 .loginPage("/auth/signIn")
@@ -49,10 +52,11 @@ public class SecurityConfig {
                 .failureUrl("/auth/signIn?error"));
 
         http.logout(logout -> logout
-                .logoutUrl("auth/signOut")
+                .logoutUrl("/signOut")
                 .logoutSuccessUrl("/"));
 
-        http.csrf(AbstractHttpConfigurer::disable);
+//        http.csrf(AbstractHttpConfigurer::disable);
+
 
         return http.build();
     }

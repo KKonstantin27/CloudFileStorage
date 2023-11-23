@@ -29,10 +29,10 @@ public class UsersValidator implements Validator {
         UserDTO userDTO = (UserDTO) target;
         Optional<User> userOptional = userDetailsService.loadUserOptionalByUsername(userDTO.getUsername());
         if (userOptional.isPresent()) {
-            errors.rejectValue("username", "", "Пользователь с таким именем уже существует");
+            errors.rejectValue("username", "", "Username already in use");
         }
         if (!userDTO.getPassword().equals(userDTO.getRepeatPassword())) {
-            errors.rejectValue("repeatPassword", "", "Ввёденные пароли не совпадают");
+            errors.rejectValue("repeatPassword", "", "Passwords don't match");
         }
     }
 }

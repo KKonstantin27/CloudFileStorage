@@ -9,7 +9,7 @@ button {
 
 
 
-.header-signIn-button:hover {
+.header-signIn-button:hover, .header-signOut-button:hover, .header-storage-button:hover {
     color: #ffffff;
     background-color: #696969;
 }
@@ -18,7 +18,7 @@ button {
     color: #454545;
 }
 
-.header-signIn-button {
+.header-signIn-button, .header-signOut-button, .header-storage-button {
     background-color: #e0e2e1;
     border-color: #454545;
 }
