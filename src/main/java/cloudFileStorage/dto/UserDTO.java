@@ -21,6 +21,6 @@ public class UserDTO {
     @Pattern(regexp = "^(?!.*\\s)[a-zA-Z\\d!@#$%^&*()_=+;:?.,<>]*$", message = "Пароль содержит недопустимые символы")
     private String password;
 
-    @Size(min = 8, max = 20, message = "Длина пароля должна быть от 8 до 20 символов")
     private String repeatPassword;
+
 }

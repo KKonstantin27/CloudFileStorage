@@ -7,7 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}" type="text/css">
 </head>
 <body>
-<div th:fragment="unauthorized-user-header" class="d-flex justify-content-between mt-4">
+<div th:fragment="unauthorized-user-header" class="d-flex justify-content-between mt-4 headers-line">
     <div class="justify-content-start align-items-center d-flex col-6">
         <div class="col-1"></div>
         <a th:href="@{/}" class="text-decoration-none col-4 fs-4 fw-bold dark-text">Cloud file storage</a>
@@ -23,23 +23,7 @@
     </div>
 </div>
 
-<!--<div th:fragment="unauthorized-user-header-for-signIn-signUp-pages" class="fluid-container d-flex justify-content-between mt-4">-->
-<!--    <div class="justify-content-start align-items-center d-flex col-6">-->
-<!--        <div class="col-1"></div>-->
-<!--        <a th:href="@{/static}" class="text-decoration-none col-4 fs-4 fw-bold header-site-name">Cloud file storage</a>-->
-<!--    </div>-->
-<!--    <div class="justify-content-end d-flex col-6 fs-6">-->
-<!--        <form th:method="GET" th:action="@{/auth/login}" hidden>-->
-<!--            <button class="py-2 px-4 header-signIn-button">Sign in</button>-->
-<!--        </form>-->
-<!--        <form th:method="GET" th:action="@{/auth/register}" hidden>-->
-<!--            <button class="py-2 px-4 header-getStarted-button">GET STARTED</button>-->
-<!--        </form>-->
-<!--        <div class="col-1"></div>-->
-<!--    </div>-->
-<!--</div>-->
-
-<div th:fragment="unauthorized-user-header-for-signIn-signUp-pages" class="d-flex justify-content-start mt-4">
+<div th:fragment="unauthorized-user-header-for-signIn-signUp-pages" class="d-flex justify-content-start mt-4 headers-line">
     <div class="justify-content-start align-items-center d-flex col-6">
         <div class="col-1"></div>
         <a th:href="@{/}" class="text-decoration-none col-4 fs-4 fw-bold dark-text">Cloud file storage</a>

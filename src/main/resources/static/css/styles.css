@@ -20,14 +20,15 @@ button {
 
 .header-signIn-button {
     background-color: #e0e2e1;
+    border-color: #454545;
 }
 
-.header-getStarted-button, .registration-button {
+.header-getStarted-button, .registration-button, .successful-page-button {
     background-color: #454545;
     color: #e0e2e1;
 }
 
-.header-getStarted-button:hover, .registration-button:hover {
+.header-getStarted-button:hover, .registration-button:hover, .successful-page-button:hover {
     color: #000000;
     background-color: #696969;
 }
@@ -44,4 +45,8 @@ a:hover {
 
 a:visited {
     color: #454545;
+}
+
+.headers-line {
+    height: 40px;
 }

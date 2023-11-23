@@ -12,13 +12,16 @@
     <div class="row justify-content-center mt-5">
         <div class="col-3 p-4 signUp-signIn-areas">
             <h2 class="text-center dark-text">Sign up form</h2>
-            <form class="justify-content-center dark-text" method="POST" th:action="@{/auth/signUp}">
+            <form class="justify-content-center dark-text" method="POST" th:action="@{/auth/signUp}" th:object="${userDTO}">
                 <label class="col-12 mt-2" for="username">Input your username</label>
-                <input class="col-12" id="username" type="text" placeholder="Username" required>
+                <input class="col-12" id="username" name="username" th:field="*{username}" type="text" placeholder="Username" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
                 <label class="col-12 mt-2" for="password">Input your password</label>
-                <input class="col-12" id="password" type="password" placeholder="Password" required>
+                <input class="col-12" id="password" name="password" th:field="*{password}" type="password" placeholder="Password" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
                 <label class="col-12 mt-2" for="repeatPassword">Repeat your password</label>
-                <input class="col-12" id="repeatPassword" type="password" placeholder="Password" required>
+                <input class="col-12" id="repeatPassword" name="repeatPassword" th:field="*{repeatPassword}" type="password" placeholder="Password" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('repeatPassword')}" th:errors="*{repeatPassword}"></div>
                 <button class="btn col-12 mt-4 registration-button">Sign up</button>
             </form>
             <div class="row justify-content-center">
@@ -26,19 +29,6 @@
             </div>
         </div>
     </div>
-
-
-<!--    <div class="justify-content-center row mt-5">-->
-<!--        <form class="justify-content-center d-flex col-4">-->
-<!--            <label class="col-12" for="username">Input your username</label>-->
-<!--            <input class="col-12" type="text" id="username" placeholder="Username">-->
-<!--            <label class="col-12" for="password">Input your password</label>-->
-<!--            <input class="col-12" type="text" id="password" placeholder="Password">-->
-<!--            <label class="col-12" for="repeatPassword">Repeat your password</label>-->
-<!--            <input class="col-12" type="text" id="repeatPassword" placeholder="Password">-->
-<!--            <button>Sign up</button>-->
-<!--        </form>-->
-<!--    </div>-->
 </div>
 </body>
 </html>

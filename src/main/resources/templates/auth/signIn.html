@@ -12,11 +12,11 @@
     <div class="row justify-content-center mt-5">
         <div class="col-3 p-4 signUp-signIn-areas">
             <h2 class="text-center dark-text">Sign in form</h2>
-            <form class="justify-content-center dark-text" method="POST" th:action="@{/auth/signIn}">
+            <form class="justify-content-center dark-text" method="POST" th:action="@{/process_signIn}">
                 <label class="col-12 mt-2" for="username">Input your username</label>
-                <input class="col-12" id="username" type="text" placeholder="Username" required>
+                <input class="col-12" id="username" name="username" type="text" placeholder="Username" required>
                 <label class="col-12 mt-2" for="password">Input your password</label>
-                <input class="col-12" id="password" type="password" placeholder="Password" required>
+                <input class="col-12" id="password" name="password" type="password" placeholder="Password" required>
                 <button class="btn col-12 mt-4 registration-button">Sign in</button>
             </form>
             <div class="row justify-content-center">

@@ -33,19 +33,22 @@ public class AuthController {
     }
 
     @GetMapping("/signUp")
-    public String getRegistrationPage() {
+    public String getRegistrationPage(@ModelAttribute("userDTO") UserDTO userDTO) {
         return "auth/signUp";
     }
 
     @PostMapping("/signUp")
-    public String register(@ModelAttribute @Valid UserDTO userDTO, BindingResult bindingResult) {
+    public String signUp(@ModelAttribute("userDTO") @Valid UserDTO userDTO, BindingResult bindingResult) {
         usersValidator.validate(userDTO, bindingResult);
-
         if (bindingResult.hasErrors()) {
             return "auth/signUp";
         }
-
         userDetailsService.signUp(usersMapper.convertToUser(userDTO));
-        return "redirect:auth/success";
+        return "redirect:/auth/success";
+    }
+
+    @GetMapping("/success")
+    public String getSuccessPage(@ModelAttribute("userDTO") UserDTO userDTO) {
+        return "auth/success";
     }
 }

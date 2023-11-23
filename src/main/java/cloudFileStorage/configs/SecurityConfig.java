@@ -45,7 +45,7 @@ public class SecurityConfig {
         http.formLogin(formLogin -> formLogin
                 .loginPage("/auth/signIn")
                 .loginProcessingUrl("/process_signIn")
-                .defaultSuccessUrl("/storage")
+                .defaultSuccessUrl("/", true)
                 .failureUrl("/auth/signIn?error"));
 
         http.logout(logout -> logout

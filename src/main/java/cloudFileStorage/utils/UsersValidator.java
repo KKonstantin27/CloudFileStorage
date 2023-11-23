@@ -28,11 +28,11 @@ public class UsersValidator implements Validator {
     public void validate(Object target, Errors errors) {
         UserDTO userDTO = (UserDTO) target;
         Optional<User> userOptional = userDetailsService.loadUserOptionalByUsername(userDTO.getUsername());
-        if (userOptional.isEmpty()) {
+        if (userOptional.isPresent()) {
             errors.rejectValue("username", "", "Пользователь с таким именем уже существует");
         }
         if (!userDTO.getPassword().equals(userDTO.getRepeatPassword())) {
-            errors.rejectValue("password", "", "Ввёденные пароли не совпадают");
+            errors.rejectValue("repeatPassword", "", "Ввёденные пароли не совпадают");
         }
     }
 }
