@@ -8,24 +8,10 @@
 </head>
 <body>
 <div class="fluid-container">
-    <div sec:authorize="isAnonymous()" th:insert="~{headers :: unauthorized-user-header}"></div>
-    <div sec:authorize="!isAnonymous()" th:insert="~{headers :: authorized-user-header}"></div>
-    <div class="row d-flex justify-content-center mt-5">
-        <div class="col-6 justify-content-center align-items-center d-flex">
-            <div sec:authorize="isAnonymous()">
-                <h1 class="text-center">Cloud file storage service</h1>
-                <h4 class="text-center">The service is available only to registered users</h4>
-            </div>
-            <div class="mt-3" sec:authorize="!isAnonymous()">
-                <h1 class="text-center">Cloud file storage service</h1>
-                <h4 class="text-center">Go to your storage</h4>
-                <form class="justify-content-center d-flex mt-3" th:method="GET" th:action="@{/storage/{path}(path=${id})}">
-                    <button class="btn py-2 px-4 header-storage-button">My storage</button>
-                </form>
-            </div>
-        </div>
-        <div class="col-6"><img src="/images/floppy-disks.png"></div>
-    </div>
+    <div sec:authorize="isAnonymous()" th:insert="~{/fragments/headers :: unauthorized-user-header}"></div>
+    <div sec:authorize="!isAnonymous()" th:insert="~{/fragments/headers :: authorized-user-header}"></div>
+    <div sec:authorize="isAnonymous()" th:insert="~{/fragments/mainPages:: unauthorized-user-mainPage}"></div>
+<!--    <div sec:authorize="!isAnonymous()" th:insert="~{/fragments/mainPages:: unauthorized-user-mainPage}"></div>-->
 </div>
 </body>
 </html>

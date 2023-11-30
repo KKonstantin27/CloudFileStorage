@@ -23,10 +23,10 @@ public class UserDetailsService implements org.springframework.security.core.use
     }
 
     @Transactional
-    public void signUp(User user) {
+    public User signUp(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("ROLE_USER");
-        usersRepository.save(user);
+        return usersRepository.save(user);
     }
 
     @Transactional(readOnly = true)
@@ -39,7 +39,7 @@ public class UserDetailsService implements org.springframework.security.core.use
     public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = usersRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
-            throw new UsernameNotFoundException("Пользователь с таким именем не существует");
+            throw new UsernameNotFoundException("User not found");
         }
         return new UserDetails(userOptional.get());
     }

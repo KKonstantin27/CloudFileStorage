@@ -5,13 +5,13 @@ import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-@Component
+@Service
 public class BucketService {
     private final MinioClient minioClient;
 

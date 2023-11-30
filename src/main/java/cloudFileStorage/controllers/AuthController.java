@@ -1,9 +1,12 @@
 package cloudFileStorage.controllers;
 
 import cloudFileStorage.dto.UserDTO;
+import cloudFileStorage.models.User;
+import cloudFileStorage.services.BucketService;
 import cloudFileStorage.services.UserDetailsService;
 import cloudFileStorage.utils.UsersMapper;
 import cloudFileStorage.utils.UsersValidator;
+import io.minio.errors.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,16 +16,22 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
     private final UserDetailsService userDetailsService;
+    private final BucketService bucketService;
     private final UsersValidator usersValidator;
     private final UsersMapper usersMapper;
 
     @Autowired
-    public AuthController(UserDetailsService userDetailsService, UsersValidator usersValidator, UsersMapper usersMapper) {
+    public AuthController(UserDetailsService userDetailsService, BucketService bucketService, UsersValidator usersValidator, UsersMapper usersMapper) {
         this.userDetailsService = userDetailsService;
+        this.bucketService = bucketService;
         this.usersValidator = usersValidator;
         this.usersMapper = usersMapper;
     }
@@ -38,12 +47,13 @@ public class AuthController {
     }
 
     @PostMapping("/signUp")
-    public String signUp(@ModelAttribute("userDTO") @Valid UserDTO userDTO, BindingResult bindingResult) {
+    public String signUp(@ModelAttribute("userDTO") @Valid UserDTO userDTO, BindingResult bindingResult) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         usersValidator.validate(userDTO, bindingResult);
         if (bindingResult.hasErrors()) {
             return "auth/signUp";
         }
-        userDetailsService.signUp(usersMapper.convertToUser(userDTO));
+        User savedUser = userDetailsService.signUp(usersMapper.convertToUser(userDTO));
+        bucketService.createBucket("user-files/user-" + savedUser.getId() + "-files");
         return "redirect:/auth/success";
     }
 
