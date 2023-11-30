@@ -6,9 +6,8 @@ services:
 #      - '8080:8080'
 #    volumes:
 #      - ./src:/cloudFileStorage
-
   mysql:
-    image: 'mysql:latest'
+    image: mysql
     restart: always
     ports:
       - '3306:3306'
@@ -17,6 +16,18 @@ services:
       - 'MYSQL_ROOT_PASSWORD=password'
     volumes:
       - mysql_data:/var/lib/mysql
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9090"
+    restart: always
+    ports:
+      - '9000:9000'
+      - '9090:9090'
+    environment:
+      - 'MINIO_ROOT_USER=minio'
+      - 'MINIO_ROOT_PASSWORD=password'
+    volumes:
+      - minio_data:/data
   adminer:
     image: adminer
     restart: always
@@ -28,3 +39,4 @@ services:
 #      - '6379'
 volumes:
   mysql_data:
+  minio_data:

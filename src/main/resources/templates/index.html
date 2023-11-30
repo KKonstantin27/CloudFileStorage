@@ -19,7 +19,7 @@
             <div class="mt-3" sec:authorize="!isAnonymous()">
                 <h1 class="text-center">Cloud file storage service</h1>
                 <h4 class="text-center">Go to your storage</h4>
-                <form class="justify-content-center d-flex mt-3" th:method="GET" th:action="@{/storage/{path}(path=${username})}">
+                <form class="justify-content-center d-flex mt-3" th:method="GET" th:action="@{/storage/{path}(path=${id})}">
                     <button class="btn py-2 px-4 header-storage-button">My storage</button>
                 </form>
             </div>

@@ -10,15 +10,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class IndexPageController {
 
     @GetMapping("/")
-    public String getIndexPage(Model model) {
+    public String getIndexPage(@RequestParam(value = "path", required = false) String path, Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            model.addAttribute("username", authentication.getName());
+//            model.addAttribute("id", ((UserDetails) authentication.getDetails()).getUser().getId());
+
         }
         return "index";
     }
