@@ -19,6 +19,9 @@ public class IndexPageController {
     public String getIndexPage(@RequestParam(value = "path", required = false) String path, Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            if (path == null) {
+                
+            }
 //            model.addAttribute("id", ((UserDetails) authentication.getDetails()).getUser().getId());
 
         }

@@ -12,11 +12,11 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @Service
-public class BucketService {
+public class BucketsService {
     private final MinioClient minioClient;
 
     @Autowired
-    public BucketService(MinioClient minioClient) {
+    public BucketsService(MinioClient minioClient) {
         this.minioClient = minioClient;
     }
 

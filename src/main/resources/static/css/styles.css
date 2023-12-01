@@ -2,41 +2,64 @@ body {
     background-color: #e0e2e1;
 }
 
+.dark-text {
+    color: #454545;
+}
+
 button {
     border-radius: 5px;
     border: none;
 }
 
+.header-signIn-button, .header-signOut-button, .search-button, .upload-btn {
+    background-color: #e0e2e1;
+    border-color: #696969;
+}
 
-
-.header-signIn-button:hover, .header-signOut-button:hover, .header-storage-button:hover {
+.header-signIn-button:hover, .header-signOut-button:hover, .search-button:hover, .upload-btn:hover {
     color: #ffffff;
     background-color: #696969;
-}
-
-.dark-text {
-    color: #454545;
-}
-
-.header-signIn-button, .header-signOut-button, .header-storage-button {
-    background-color: #e0e2e1;
-    border-color: #454545;
+    border-color: #696969;
 }
 
 .header-getStarted-button, .registration-button, .successful-page-button {
     background-color: #454545;
+    border-color: #454545;
     color: #e0e2e1;
 }
 
 .header-getStarted-button:hover, .registration-button:hover, .successful-page-button:hover {
     color: #000000;
     background-color: #696969;
+    border-color: #696969;
 }
 
 .signUp-signIn-areas {
     background-color: white;
     border-radius: 10px;
     border-color: black;
+}
+
+.browser-area {
+    background-color: white;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    min-height: 400px;
+}
+
+.breadcrumbs-area {
+    background-color: white;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    min-height: 20px;
+}
+
+.search-input {
+    border-color: #454545;
 }
 
 a:hover {
@@ -48,5 +71,5 @@ a:visited {
 }
 
 .headers-line {
-    height: 40px;
+    height: 42px;
 }
