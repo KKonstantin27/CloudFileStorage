@@ -2,7 +2,7 @@ package cloudFileStorage.controllers;
 
 import cloudFileStorage.dto.UserDTO;
 import cloudFileStorage.models.User;
-import cloudFileStorage.services.FoldersService;
+import cloudFileStorage.services.UserObjectsService;
 import cloudFileStorage.services.UserDetailsService;
 import cloudFileStorage.utils.UsersMapper;
 import cloudFileStorage.utils.UsersValidator;
@@ -24,15 +24,15 @@ import java.security.NoSuchAlgorithmException;
 @RequestMapping("/auth")
 public class AuthController {
     private final UserDetailsService userDetailsService;
-    private final FoldersService foldersService;
+    private final UserObjectsService userObjectsService;
 
     private final UsersValidator usersValidator;
     private final UsersMapper usersMapper;
 
     @Autowired
-    public AuthController(UserDetailsService userDetailsService, FoldersService foldersService, UsersValidator usersValidator, UsersMapper usersMapper) {
+    public AuthController(UserDetailsService userDetailsService, UserObjectsService userObjectsService, UsersValidator usersValidator, UsersMapper usersMapper) {
         this.userDetailsService = userDetailsService;
-        this.foldersService = foldersService;
+        this.userObjectsService = userObjectsService;
         this.usersValidator = usersValidator;
         this.usersMapper = usersMapper;
     }
@@ -54,7 +54,7 @@ public class AuthController {
             return "auth/signUp";
         }
         User savedUser = userDetailsService.signUp(usersMapper.convertToUser(userDTO));
-        foldersService.createFolder("user-" + savedUser.getId() + "-files/");
+        userObjectsService.createFolder("user-" + savedUser.getId() + "-files/");
         return "redirect:/auth/success";
     }
 

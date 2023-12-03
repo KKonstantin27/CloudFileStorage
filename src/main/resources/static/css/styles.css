@@ -58,6 +58,16 @@ button {
     min-height: 20px;
 }
 
+.userObjects-area {
+    border-color: black;
+    border-width: thin;
+    border-bottom-style: dashed;
+}
+
+i {
+    color: #454545;
+}
+
 .search-input {
     border-color: #454545;
 }
