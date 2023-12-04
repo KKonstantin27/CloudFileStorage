@@ -25,26 +25,31 @@
         <div class="justify-content-center align-content-center d-flex">
             <form class="justify-content-center align-content-center d-flex col-8" th:method="GET" th:action="@{/search}">
                 <input class="col-6 h-100" type="text" name="query">
-                <button class="btn search-button text-center col-2 p-1">Search file</button>
+                <button class="btn light-button text-center col-2 p-1">Search file</button>
             </form>
         </div>
     </div>
     <div class="justify-content-center d-flex">
-        <div class="breadcrumbs-area col-7"></div>
+        <div class="breadcrumbs-area col-6"></div>
+        <div class="col-1">
+            <form method="POST" >
+                <button type="button" class="btn light-button w-100 p-1">Create folder</button>
+            </form>
+        </div>
         <div class="col-1">
             <div class="dropdown">
-                <button type="button" class="btn upload-btn dropdown-toggle w-100 p-1" data-bs-toggle="dropdown">Upload</button>
+                <button type="button" class="btn light-button w-100 p-1" data-bs-toggle="dropdown">Upload</button>
                 <ul class="dropdown-menu">
                     <li>
                         <form method="POST" enctype="multipart/form-data">
                             <input id="upload-file" type="file" multiple hidden>
-                            <label for="upload-file" class="btn upload-btn w-100">Upload files</label>
+                            <label for="upload-file" class="btn light-button w-100">Upload files</label>
                         </form>
                     </li>
                     <li class="mt-2 w-100">
                         <form method="POST" enctype="multipart/form-data" >
                             <input id="upload-folder" type="file" multiple webkitdirectory hidden>
-                            <label for="upload-folder" class="btn upload-btn w-100">Upload folders</label>
+                            <label for="upload-folder" class="btn light-button w-100">Upload folders</label>
                         </form>
                     </li>
                 </ul>
@@ -53,18 +58,57 @@
     </div>
     <div class="justify-content-center d-flex">
         <div class="browser-area col-8">
-            <div class="justify-content-between d-flex col-12 fs-6 userObjects-area">
-                <div class="col-5 dark-text ps-1">Name</div>
-                <div class="col-5 dark-text">Size</div>
-                <div class="col-2 dark-text text-end pe-1">Action</div>
+            <div class="justify-content-between d-flex col-12 fs-5 userObjects-area">
+                <div class="col-9 dark-text ps-1">Name</div>
+                <div class="col-3 dark-text">Size</div>
             </div>
-            <div class="justify-content-between d-flex col-12 fs-6 py-2 userObjects-area" th:each="userObjectDTO : ${userObjectDTOList}">
-                <div class="col-5 dark-text ps-1">
-                    <i class="fa-regular fa-folder fa-lg" th:if="${userObjectDTO.isDir()}"></i>
-                    <i class="fa-regular fa-file fa-lg" th:if="${!userObjectDTO.isDir()}"></i>
-                    <span class="ms-1" th:text="${userObjectDTO.getName()}"></span></div>
-                <div class="col-5 dark-text" th:text="${userObjectDTO.getSize()}"></div>
-                <div class="col-2 dark-text pe-1"></div>
+
+            <div class="dropend" th:each="userObjectDTO : ${userObjectDTOList}">
+
+                <button type="button" class="btn userObjects-button w-100 col-12 fs-6 d-flex px-0 py-2" data-bs-toggle="dropdown">
+                    <div class="col-9 ps-1 justify-content-start align-items-center d-flex">
+                        <i class="fa-solid fa-folder" style="color: #f0dd0f;" th:if="${userObjectDTO.isDir()}"></i>
+                        <i class="fa-solid fa-file fa-lg" style="color: #0e58d8;" th:if="${!userObjectDTO.isDir()}"></i>
+                        <span class="ms-1" th:text="${userObjectDTO.getName()}"></span></div>
+                    <div class="col-3 justify-content-start d-flex align-items-center" th:text="${userObjectDTO.getSize()}"></div>
+                </button>
+
+                <ul class="dropdown-menu" th:if="${userObjectDTO.isDir()}">
+                    <li>
+                        <form method="POST">
+                            <button type="button" class="btn light-button w-100 p-1">Open folder</button>
+                        </form>
+                    </li>
+                    <li class="mt-2 w-100">
+                        <form method="POST">
+                            <button type="button" class="btn light-button w-100 p-1">Rename folder</button>
+                        </form>
+                    </li>
+                    <li class="mt-2 w-100">
+                        <form method="POST">
+                            <button type="button" class="btn light-button w-100 p-1">Delete folder</button>
+                        </form>
+                    </li>
+                </ul>
+
+                <ul class="dropdown-menu" th:if="${!userObjectDTO.isDir()}">
+                    <li>
+                        <form method="POST">
+                            <button type="button" class="btn light-button w-100 p-1">Download file</button>
+                        </form>
+                    </li>
+                    <li class="mt-2 w-100">
+                        <form method="POST">
+                            <button type="button" class="btn light-button w-100 p-1">Rename file</button>
+                        </form>
+                    </li>
+                    <li class="mt-2 w-100">
+                        <form method="POST">
+                            <button type="button" class="btn light-button w-100 p-1">Delete file</button>
+                        </form>
+                    </li>
+                </ul>
+
             </div>
         </div>
     </div>

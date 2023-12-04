@@ -16,10 +16,10 @@
     </div>
     <div class="justify-content-end d-flex col-6 fs-6">
         <form th:method="GET" th:action="@{/auth/signIn}">
-            <button class="btn py-2 px-4 header-signIn-button">Sign in</button>
+            <button class="btn py-2 px-4 light-button">Sign in</button>
         </form>
         <form th:method="GET" th:action="@{/auth/signUp}">
-            <button class="btn py-2 px-4 header-getStarted-button">GET STARTED</button>
+            <button class="btn py-2 px-4 dark-button">GET STARTED</button>
         </form>
         <div class="col-1"></div>
     </div>
@@ -40,7 +40,7 @@
     <div class="justify-content-end align-items-center d-flex col-6 fs-6">
         <div class="dark-text fs-4 me-2" th:text="${#authentication.name}"></div>
         <form th:method="POST" th:action="@{/signOut}">
-            <button class="btn py-2 px-4 header-signOut-button">Sign out</button>
+            <button class="btn py-2 px-4 light-button">Sign out</button>
         </form>
         <div class="col-1"></div>
     </div>

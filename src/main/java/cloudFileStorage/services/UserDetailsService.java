@@ -1,5 +1,6 @@
 package cloudFileStorage.services;
 
+import cloudFileStorage.enums.UserRoles;
 import cloudFileStorage.models.User;
 import cloudFileStorage.repositories.UsersRepository;
 import cloudFileStorage.security.UserDetails;
@@ -25,7 +26,7 @@ public class UserDetailsService implements org.springframework.security.core.use
     @Transactional
     public User signUp(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("ROLE_USER");
+        user.setRole(UserRoles.USER.getUserRole());
         return usersRepository.save(user);
     }
 

@@ -20,26 +20,13 @@
                 <label class="col-12 mt-2" for="password">Input your password</label>
                 <input class="col-12" id="password" name="password" type="password" placeholder="Password" >
                 <div class="text-danger" th:if="${param.error}">Wrong username or password</div>
-                <button class="btn col-12 mt-4 registration-button">Sign in</button>
+                <button class="btn col-12 mt-4 dark-button">Sign in</button>
             </form>
             <div class="row justify-content-center">
                 <a class="dark-text text-center mt-3" th:href="@{/auth/signUp}">Create account</a>
             </div>
         </div>
     </div>
-
-
-<!--    <div class="justify-content-center row mt-5">-->
-<!--        <form class="justify-content-center d-flex col-4">-->
-<!--            <label class="col-12" for="username">Input your username</label>-->
-<!--            <input class="col-12" type="text" id="username" placeholder="Username">-->
-<!--            <label class="col-12" for="password">Input your password</label>-->
-<!--            <input class="col-12" type="text" id="password" placeholder="Password">-->
-<!--            <label class="col-12" for="repeatPassword">Repeat your password</label>-->
-<!--            <input class="col-12" type="text" id="repeatPassword" placeholder="Password">-->
-<!--            <button>Sign up</button>-->
-<!--        </form>-->
-<!--    </div>-->
 </div>
 </body>
 </html>

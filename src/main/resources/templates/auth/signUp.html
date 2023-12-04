@@ -23,7 +23,7 @@
                 <label class="col-12 mt-2" for="repeatPassword">Repeat your password</label>
                 <input class="col-12" id="repeatPassword" name="repeatPassword" th:field="*{repeatPassword}" type="password" placeholder="Password" required>
                 <div class="text-danger" th:if="${#fields.hasErrors('repeatPassword')}" th:errors="*{repeatPassword}"></div>
-                <button class="btn col-12 mt-4 registration-button">Sign up</button>
+                <button class="btn col-12 mt-4 dark-button">Sign up</button>
             </form>
             <div class="row justify-content-center">
                 <a class="dark-text text-center mt-3" th:href="@{/auth/signIn}">Already have an account</a>

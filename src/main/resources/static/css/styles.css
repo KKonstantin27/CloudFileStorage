@@ -6,32 +6,44 @@ body {
     color: #454545;
 }
 
-button {
+.light-button {
     border-radius: 5px;
-    border: none;
-}
-
-.header-signIn-button, .header-signOut-button, .search-button, .upload-btn {
     background-color: #e0e2e1;
     border-color: #696969;
 }
 
-.header-signIn-button:hover, .header-signOut-button:hover, .search-button:hover, .upload-btn:hover {
+.light-button:hover {
     color: #ffffff;
     background-color: #696969;
     border-color: #696969;
 }
 
-.header-getStarted-button, .registration-button, .successful-page-button {
+.dark-button {
+    border-radius: 5px;
     background-color: #454545;
     border-color: #454545;
     color: #e0e2e1;
 }
 
-.header-getStarted-button:hover, .registration-button:hover, .successful-page-button:hover {
+.dark-button:hover {
     color: #000000;
     background-color: #696969;
     border-color: #696969;
+}
+
+.userObjects-button {
+    border-style: none;
+    border-radius: 0;
+    background-color: white;
+    border-color: black;
+    border-width: thin;
+    border-bottom-style: dashed;
+    color: #454545;
+}
+
+.userObjects-button:hover {
+    background-color: #696969;
+    color: white;
 }
 
 .signUp-signIn-areas {
@@ -61,8 +73,9 @@ button {
 .userObjects-area {
     border-color: black;
     border-width: thin;
-    border-bottom-style: dashed;
+    border-bottom-style: solid;
 }
+
 
 i {
     color: #454545;
