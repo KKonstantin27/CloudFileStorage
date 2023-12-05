@@ -41,6 +41,18 @@ body {
     color: #454545;
 }
 
+.dropdown-button {
+    border-style: none;
+    border-radius: 0;
+    background-color: white;
+    color: #454545;
+}
+
+.dropdown-button:hover {
+    color: #ffffff;
+    background-color: #696969;
+}
+
 .userObjects-button:hover {
     background-color: #696969;
     color: white;

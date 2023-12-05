@@ -1,6 +1,5 @@
 package cloudFileStorage.services;
 
-import cloudFileStorage.dto.UserDTO;
 import cloudFileStorage.dto.UserObjectDTO;
 import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
@@ -15,10 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class UserObjectsService {
@@ -60,5 +56,15 @@ public class UserObjectsService {
 
     public String getUserObjectName(String[] userObjectPath) {
         return userObjectPath[userObjectPath.length - 1];
+    }
+
+    public Map<String, String> buildBreadcrumbs(String userStorageName, String path) {
+        Map<String, String> breadcrumbs = new LinkedHashMap<>();
+        String[] pathArr = path.split("/");
+        StringBuilder currentPath = new StringBuilder();
+        for (String fragmentOfPath : pathArr) {
+            breadcrumbs.put(fragmentOfPath + "/", (currentPath.append(fragmentOfPath).append("/")).toString());
+        }
+        return breadcrumbs;
     }
 }

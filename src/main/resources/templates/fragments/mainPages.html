@@ -29,27 +29,31 @@
             </form>
         </div>
     </div>
+
     <div class="justify-content-center d-flex">
-        <div class="breadcrumbs-area col-6"></div>
+        <div class="breadcrumbs-area col-6">
+            <a th:href="@{/}" th:text="${userStorageName}"></a>
+            <a th:each="entry : ${breadcrumbs}" th:href="@{/(path=${entry.value})}" th:text="${entry.key}"></a>
+        </div>
         <div class="col-1">
             <form method="POST" >
                 <button type="button" class="btn light-button w-100 p-1">Create folder</button>
             </form>
         </div>
         <div class="col-1">
-            <div class="dropdown">
+            <div class="dropdown-center">
                 <button type="button" class="btn light-button w-100 p-1" data-bs-toggle="dropdown">Upload</button>
                 <ul class="dropdown-menu">
-                    <li>
+                    <li class="w-100">
                         <form method="POST" enctype="multipart/form-data">
                             <input id="upload-file" type="file" multiple hidden>
-                            <label for="upload-file" class="btn light-button w-100">Upload files</label>
+                            <label for="upload-file" class="btn dropdown-button w-100">Upload files</label>
                         </form>
                     </li>
-                    <li class="mt-2 w-100">
+                    <li class="w-100">
                         <form method="POST" enctype="multipart/form-data" >
                             <input id="upload-folder" type="file" multiple webkitdirectory hidden>
-                            <label for="upload-folder" class="btn light-button w-100">Upload folders</label>
+                            <label for="upload-folder" class="btn dropdown-button w-100">Upload folders</label>
                         </form>
                     </li>
                 </ul>
@@ -74,37 +78,36 @@
                 </button>
 
                 <ul class="dropdown-menu" th:if="${userObjectDTO.isDir()}">
-                    <li>
+                    <li class="w-100">
+                        <a class="btn dropdown-button w-100 p-1" th:if="${param.isEmpty()}" th:href="@{/(path=${userObjectDTO.getName()} + '/')}">Open folder</a>
+                        <a class="btn dropdown-button w-100 p-1" th:unless="${param.isEmpty()}" th:href="@{/(path=${param.get('path') + userObjectDTO.getName()} + '/')}">Open folder</a>
+                    </li>
+                    <li class="w-100">
                         <form method="POST">
-                            <button type="button" class="btn light-button w-100 p-1">Open folder</button>
+                            <button type="button" class="btn dropdown-button w-100 p-1">Rename folder</button>
                         </form>
                     </li>
-                    <li class="mt-2 w-100">
+                    <li class="w-100">
                         <form method="POST">
-                            <button type="button" class="btn light-button w-100 p-1">Rename folder</button>
-                        </form>
-                    </li>
-                    <li class="mt-2 w-100">
-                        <form method="POST">
-                            <button type="button" class="btn light-button w-100 p-1">Delete folder</button>
+                            <button type="button" class="btn dropdown-button w-100 p-1">Delete folder</button>
                         </form>
                     </li>
                 </ul>
 
                 <ul class="dropdown-menu" th:if="${!userObjectDTO.isDir()}">
-                    <li>
+                    <li class="w-100">
                         <form method="POST">
-                            <button type="button" class="btn light-button w-100 p-1">Download file</button>
+                            <button type="button" class="btn dropdown-button w-100 p-1">Download file</button>
                         </form>
                     </li>
-                    <li class="mt-2 w-100">
+                    <li class="w-100">
                         <form method="POST">
-                            <button type="button" class="btn light-button w-100 p-1">Rename file</button>
+                            <button type="button" class="btn dropdown-button w-100 p-1">Rename file</button>
                         </form>
                     </li>
-                    <li class="mt-2 w-100">
+                    <li class="w-100">
                         <form method="POST">
-                            <button type="button" class="btn light-button w-100 p-1">Delete file</button>
+                            <button type="button" class="btn dropdown-button w-100 p-1">Delete file</button>
                         </form>
                     </li>
                 </ul>

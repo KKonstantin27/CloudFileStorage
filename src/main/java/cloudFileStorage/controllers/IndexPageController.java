@@ -11,12 +11,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class IndexPageController {
@@ -37,19 +38,20 @@ public class IndexPageController {
 
         int userId = ((UserDetails) authentication.getPrincipal()).getUser().getId();
         String userStorageName = "user-" + userId + "-files/";
+
         List<UserObjectDTO> userObjectDTOList;
+        Map<String, String> breadcrumbs;
 
         if (path == null) {
             userObjectDTOList = userObjectsService.getObjects(userStorageName);
-//            for (Result<Item> object : objects) {
-//                System.out.println(object.get().objectName());
-//            }
+            breadcrumbs = new LinkedHashMap<>();
         } else {
-            userObjectDTOList = userObjectsService.getObjects(userStorageName + path + "/");
-//            for (Result<Item> object : objects) {
-//                System.out.println(object.get().objectName());
-//            }
+            userObjectDTOList = userObjectsService.getObjects(userStorageName + path);
+            breadcrumbs = userObjectsService.buildBreadcrumbs(userStorageName, path);
         }
+
+        model.addAttribute("userStorageName", userStorageName);
+        model.addAttribute("breadcrumbs", breadcrumbs);
         model.addAttribute("userObjectDTOList", userObjectDTOList);
         return "index";
     }
