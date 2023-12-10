@@ -35,25 +35,33 @@
             <a th:href="@{/}" th:text="${userStorageName}"></a>
             <a th:each="entry : ${breadcrumbs}" th:href="@{/(path=${entry.value})}" th:text="${entry.key}"></a>
         </div>
-        <div class="col-1">
-            <form method="POST" >
-                <button type="button" class="btn light-button w-100 p-1">Create folder</button>
-            </form>
+        <div class="col-1 dropdown-center">
+            <button type="button" class="btn light-button w-100 p-1" data-bs-toggle="dropdown">Create folder</button>
+            <ul class="dropdown-menu">
+                <li class="w-100">
+                    <form th:method="POST" th:action="@{/create-folder}">
+                        <input type="text" name="userObjectName" placeholder="Folder's name">
+                        <input type="text" name="path" hidden th:value="${param.get('path')}">
+                        <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Submit</button>
+                    </form>
+                </li>
+            </ul>
         </div>
         <div class="col-1">
             <div class="dropdown-center">
                 <button type="button" class="btn light-button w-100 p-1" data-bs-toggle="dropdown">Upload</button>
                 <ul class="dropdown-menu">
                     <li class="w-100">
-                        <form method="POST" enctype="multipart/form-data">
-                            <input id="upload-file" type="file" multiple hidden>
-                            <label for="upload-file" class="btn dropdown-button w-100">Upload files</label>
+                        <form method="POST" enctype="multipart/form-data" th:action="@{/upload}">
+                            <input type="text" name="path" hidden th:value="${param.get('path')}">
+                            <input id="upload-file" type="file" name="userObject" multiple hidden onchange="this.form.submit()">
+                            <label for="upload-file" class="btn dropdown-button w-100">Upload file</label>
                         </form>
                     </li>
                     <li class="w-100">
                         <form method="POST" enctype="multipart/form-data" >
-                            <input id="upload-folder" type="file" multiple webkitdirectory hidden>
-                            <label for="upload-folder" class="btn dropdown-button w-100">Upload folders</label>
+                            <input id="upload-folder" type="file" name="userObject" multiple webkitdirectory hidden>
+                            <label for="upload-folder" class="btn dropdown-button w-100">Upload folder</label>
                         </form>
                     </li>
                 </ul>
@@ -79,8 +87,8 @@
 
                 <ul class="dropdown-menu" th:if="${userObjectDTO.isDir()}">
                     <li class="w-100">
-                        <a class="btn dropdown-button w-100 p-1" th:if="${param.isEmpty()}" th:href="@{/(path=${userObjectDTO.getName()} + '/')}">Open folder</a>
-                        <a class="btn dropdown-button w-100 p-1" th:unless="${param.isEmpty()}" th:href="@{/(path=${param.get('path') + userObjectDTO.getName()} + '/')}">Open folder</a>
+                        <a class="btn dropdown-button w-100 p-1" th:if="${param.isEmpty()}" th:href="@{/(path=${userObjectDTO.getName() + '/'} )}">Open folder</a>
+                        <a class="btn dropdown-button w-100 p-1" th:unless="${param.isEmpty()}" th:href="@{/(path=${param.get('path') + userObjectDTO.getName() + '/'})}">Open folder</a>
                     </li>
                     <li class="w-100">
                         <form method="POST">
@@ -106,8 +114,10 @@
                         </form>
                     </li>
                     <li class="w-100">
-                        <form method="POST">
-                            <button type="button" class="btn dropdown-button w-100 p-1">Delete file</button>
+                        <form th:method="DELETE">
+                            <input type="text" name="userObjectName" hidden th:value="${userObjectDTO.getName()}">
+                            <input type="text" name="path" hidden th:value="${param.get('path')}">
+                            <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Delete file</button>
                         </form>
                     </li>
                 </ul>

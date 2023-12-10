@@ -41,9 +41,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/css/**", "/images/**").permitAll()
                 .requestMatchers("/", "/auth/signIn", "/auth/signUp", "/auth/success").permitAll()
-//                .anyRequest().permitAll());
-                .anyRequest().hasAuthority("USER"));
-
+                .anyRequest().permitAll());
+//                .anyRequest().hasAuthority("USER"));
 
         http.formLogin(formLogin -> formLogin
                 .loginPage("/auth/signIn")
@@ -55,8 +54,7 @@ public class SecurityConfig {
                 .logoutUrl("/signOut")
                 .logoutSuccessUrl("/"));
 
-//        http.csrf(AbstractHttpConfigurer::disable);
-
+        http.csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }

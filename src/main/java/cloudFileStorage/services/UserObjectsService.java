@@ -1,14 +1,13 @@
 package cloudFileStorage.services;
 
 import cloudFileStorage.dto.UserObjectDTO;
-import io.minio.ListObjectsArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.Result;
+import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,7 +28,18 @@ public class UserObjectsService {
         minioClient.putObject(PutObjectArgs
                 .builder()
                 .bucket("user-files")
-                .object(path).stream(new ByteArrayInputStream(new byte[] {}), 0, -1)
+                .object(path)
+                .stream(new ByteArrayInputStream(new byte[] {}), 0, -1)
+                .build());
+    }
+
+    public void uploadUserObject(String path, MultipartFile userObject) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        minioClient.putObject(PutObjectArgs
+                .builder()
+                .bucket("user-files")
+                .object(path + userObject.getOriginalFilename())
+                .stream(userObject.getInputStream(), userObject.getSize(), -1)
+                .contentType(userObject.getContentType())
                 .build());
     }
 
@@ -52,6 +62,14 @@ public class UserObjectsService {
         }
         Collections.reverse(userObjectDTOList);
         return userObjectDTOList;
+    }
+
+    public void deleteUserObject(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        minioClient.removeObject(RemoveObjectArgs
+                .builder()
+                .bucket("user-files")
+                .object(path)
+                .build());
     }
 
     public String getUserObjectName(String[] userObjectPath) {

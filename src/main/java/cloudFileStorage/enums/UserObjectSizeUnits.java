@@ -23,7 +23,7 @@ public enum UserObjectSizeUnits {
     }
 
     public static String convertSizeToRequiredUnit(double size) {
-        if (size > 0 && size < 1024) {
+        if (size >= 0 && size < 1024) {
             return size + BYTES.getUnit();
         } else if (size >= 1024 && size < 1048576) {
             size /= 1024;
