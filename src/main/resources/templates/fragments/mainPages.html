@@ -20,7 +20,7 @@
     <div class="col-6"><img src="/images/floppy-disks.png"></div>
 </div>
 
-<div th:fragment="authorized-user-mainPage" class="mt-5">
+<div th:fragment="authorized-user-mainPage" class="my-5">
     <div class="mb-5">
         <div class="justify-content-center align-content-center d-flex">
             <form class="justify-content-center align-content-center d-flex col-8" th:method="GET" th:action="@{/search}">
@@ -39,9 +39,9 @@
             <button type="button" class="btn light-button w-100 p-1" data-bs-toggle="dropdown">Create folder</button>
             <ul class="dropdown-menu">
                 <li class="w-100">
-                    <form th:method="POST" th:action="@{/create-folder}">
-                        <input type="text" name="userObjectName" placeholder="Folder's name">
-                        <input type="text" name="path" hidden th:value="${param.get('path')}">
+                    <form th:method="POST" th:action="@{/create-folder}" th:object="${userFolderDTO}">
+                        <input type="text" th:name="name" placeholder="Folder's name">
+                        <input type="text" th:name="path" hidden th:value="${param.get('path')}">
                         <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Submit</button>
                     </form>
                 </li>
@@ -96,8 +96,10 @@
                         </form>
                     </li>
                     <li class="w-100">
-                        <form method="POST">
-                            <button type="button" class="btn dropdown-button w-100 p-1">Delete folder</button>
+                        <form th:method="DELETE" th:action="@{/delete-folder}" th:object="${userFolderDTO}">
+                            <input type="text" th:name="name" hidden th:value="${userObjectDTO.getName()}">
+                            <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+                            <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Delete folder</button>
                         </form>
                     </li>
                 </ul>
@@ -109,14 +111,16 @@
                         </form>
                     </li>
                     <li class="w-100">
-                        <form method="POST">
-                            <button type="button" class="btn dropdown-button w-100 p-1">Rename file</button>
+                        <form method="POST" th:action="@{/rename-file}" th:object="${userFileDTO}">
+                            <input type="text" th:name="name" placeholder="New file's name">
+                            <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+                            <button type="button" class="btn dropdown-button w-100 p-1 d-block">Rename file</button>
                         </form>
                     </li>
                     <li class="w-100">
-                        <form th:method="DELETE">
-                            <input type="text" name="userObjectName" hidden th:value="${userObjectDTO.getName()}">
-                            <input type="text" name="path" hidden th:value="${param.get('path')}">
+                        <form class="justify-content-center d-flex" th:method="DELETE" th:action="@{/delete-file}" th:object="${userFileDTO}">
+                            <input type="text" th:name="name" hidden th:value="${userObjectDTO.getName()}">
+                            <input type="text" th:name="path" hidden th:value="${param.get('path')}">
                             <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Delete file</button>
                         </form>
                     </li>
@@ -126,6 +130,7 @@
         </div>
     </div>
 </div>
+<div class="m-5"></div>
 </body>
 </html>
 

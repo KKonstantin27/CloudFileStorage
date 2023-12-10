@@ -1,5 +1,7 @@
 package cloudFileStorage.controllers;
 
+import cloudFileStorage.dto.UserFileDTO;
+import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
 import cloudFileStorage.security.UserDetails;
 import cloudFileStorage.services.UserObjectsService;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -25,36 +28,38 @@ public class UserStorageController extends BaseController {
         this.userObjectsService = userObjectsService;
     }
 
-    @PostMapping("/upload")
-    public String uploadFiles(@RequestParam(value = "path", required = false) String path,
-                              @RequestParam("userObject") MultipartFile userObject) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.uploadUserObject(getUserStorageName() + path, userObject);
-        if (path.isEmpty()) {
-            return "redirect:/";
-        } else {
-            return "redirect:/?path=" + path;
-        }
-    }
+//    @PostMapping("/upload")
+//    public String uploadFiles(@RequestParam(value = "path", required = false) String path,
+//                              @RequestParam("userObject") MultipartFile userObject) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+//        userObjectsService.uploadUserObject(getUserStorageName() + path, userObject);
+//        if (path.isEmpty()) {
+//            return "redirect:/";
+//        } else {
+//            return "redirect:/?path=" + path;
+//        }
+//    }
 
     @PostMapping("/create-folder")
-    public String createFolder(@RequestParam(value = "path", required = false) String path,
-                               @RequestParam("userObjectName") String userObjectName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.createFolder(getUserStorageName() + path + userObjectName + "/");
-        if (path.isEmpty()) {
-            return "redirect:/";
-        } else {
-            return "redirect:/?path=" + path;
-        }
+    public String createFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.createFolder(getUserStorageName(), userFolderDTO.getPath(), userFolderDTO.getName());
+        return getRedirectURL(userFolderDTO);
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public String deleteUserObject(@RequestParam(value = "path", required = false) String path,
-                                   @RequestParam("userObjectName") String userObjectName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.deleteUserObject(getUserStorageName() + path + userObjectName);
-        if (path.isEmpty()) {
-            return "redirect:/";
-        } else {
-            return "redirect:/?path=" + path;
-        }
+//    @PatchMapping("/rename-file")
+//    public String renameUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) {
+//        userObjectsService.renameUserFile();
+//        return getRedirectURL(userFileDTO);
+//    }
+
+    @DeleteMapping(value = "/delete-file")
+    public String deleteUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.deleteUserFile(getUserStorageName(), userFileDTO.getPath(), userFileDTO.getName());
+        return getRedirectURL(userFileDTO);
+    }
+
+    @DeleteMapping(value = "delete-folder")
+    public String deleteUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.deleteUserFolder(getUserStorageName(), userFolderDTO.getPath(), userFolderDTO.getName() + "/");
+        return getRedirectURL(userFolderDTO);
     }
 }

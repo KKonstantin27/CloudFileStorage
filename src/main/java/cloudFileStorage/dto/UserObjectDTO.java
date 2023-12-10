@@ -2,21 +2,26 @@ package cloudFileStorage.dto;
 
 import cloudFileStorage.enums.UserObjectSizeUnits;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@NoArgsConstructor
+@Getter
+@Setter
 public class UserObjectDTO {
     private String name;
     private String size;
+    private String userStorageName;
+    private String path;
     boolean isDir;
 
-    public UserObjectDTO(String name, long size, boolean isDir) {
+    public UserObjectDTO(String name, String size, String userStorageName, String path, boolean isDir) {
         this.name = name;
+        this.size = size;
+        this.userStorageName = userStorageName;
+        this.path = path;
         this.isDir = isDir;
-        if (isDir) {
-            this.size = "-";
-        } else {
-            this.size = UserObjectSizeUnits.convertSizeToRequiredUnit(size);
-        }
     }
 }
 

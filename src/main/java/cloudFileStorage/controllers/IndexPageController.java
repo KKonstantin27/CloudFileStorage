@@ -1,5 +1,7 @@
 package cloudFileStorage.controllers;
 
+import cloudFileStorage.dto.UserFileDTO;
+import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
 import cloudFileStorage.security.UserDetails;
 import cloudFileStorage.services.UserObjectsService;
@@ -11,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -20,7 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Controller
-public class IndexPageController {
+public class IndexPageController extends BaseController {
 
     private final UserObjectsService userObjectsService;
 
@@ -30,27 +33,20 @@ public class IndexPageController {
     }
 
     @GetMapping("/")
-    public String getIndexPage(@RequestParam(value = "path", required = false) String path, Model model) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public String getIndexPage(@RequestParam(value = "path", required = false) String path,
+                               @ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO,
+                               @ModelAttribute("userFileDTO") UserFileDTO userFileDTO,
+                               Model model) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication instanceof AnonymousAuthenticationToken) {
             return "index";
         }
 
-        int userId = ((UserDetails) authentication.getPrincipal()).getUser().getId();
-        String userStorageName = "user-" + userId + "-files/";
+        List<UserObjectDTO> userObjectDTOList = userObjectsService.getObjects(getUserStorageName(), path);
+        Map<String, String> breadcrumbs = userObjectsService.buildBreadcrumbs(getUserStorageName(), path);
 
-        List<UserObjectDTO> userObjectDTOList;
-        Map<String, String> breadcrumbs;
-
-        if (path == null) {
-            userObjectDTOList = userObjectsService.getObjects(userStorageName);
-            breadcrumbs = new LinkedHashMap<>();
-        } else {
-            userObjectDTOList = userObjectsService.getObjects(userStorageName + path);
-            breadcrumbs = userObjectsService.buildBreadcrumbs(userStorageName, path);
-        }
-
-        model.addAttribute("userStorageName", userStorageName);
+        model.addAttribute("userStorageName", getUserStorageName());
         model.addAttribute("breadcrumbs", breadcrumbs);
         model.addAttribute("userObjectDTOList", userObjectDTOList);
         return "index";

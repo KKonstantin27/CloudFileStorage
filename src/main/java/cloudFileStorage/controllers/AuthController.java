@@ -22,7 +22,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Controller
 @RequestMapping("/auth")
-public class AuthController {
+public class AuthController extends BaseController {
     private final UserDetailsService userDetailsService;
     private final UserObjectsService userObjectsService;
 
@@ -54,7 +54,7 @@ public class AuthController {
             return "auth/signUp";
         }
         User savedUser = userDetailsService.signUp(usersMapper.convertToUser(userDTO));
-        userObjectsService.createFolder("user-" + savedUser.getId() + "-files/");
+        userObjectsService.createUserStorage("user-" + savedUser.getId() + "-files");
         return "redirect:/auth/success";
     }
 
