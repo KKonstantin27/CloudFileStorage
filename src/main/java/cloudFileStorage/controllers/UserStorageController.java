@@ -41,25 +41,26 @@ public class UserStorageController extends BaseController {
 
     @PostMapping("/create-folder")
     public String createFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.createFolder(getUserStorageName(), userFolderDTO.getPath(), userFolderDTO.getName());
+        userObjectsService.createFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);
     }
 
-//    @PatchMapping("/rename-file")
-//    public String renameUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) {
-//        userObjectsService.renameUserFile();
-//        return getRedirectURL(userFileDTO);
-//    }
+    @PatchMapping("/rename-file")
+    public String renameUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO,
+                                 @RequestParam("oldName") String oldUserFileName) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.renameUserFile(getUserStorageName(), oldUserFileName, userFileDTO);
+        return getRedirectURL(userFileDTO);
+    }
 
     @DeleteMapping(value = "/delete-file")
     public String deleteUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.deleteUserFile(getUserStorageName(), userFileDTO.getPath(), userFileDTO.getName());
+        userObjectsService.deleteUserFile(getUserStorageName(), userFileDTO);
         return getRedirectURL(userFileDTO);
     }
 
     @DeleteMapping(value = "delete-folder")
     public String deleteUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.deleteUserFolder(getUserStorageName(), userFolderDTO.getPath(), userFolderDTO.getName() + "/");
+        userObjectsService.deleteUserFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);
     }
 }

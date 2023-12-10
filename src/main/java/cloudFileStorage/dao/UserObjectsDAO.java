@@ -54,6 +54,18 @@ public class UserObjectsDAO {
                 .build());
     }
 
+    public void copyUserObject(String oldPath, String newPath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        minioClient.copyObject(CopyObjectArgs
+                .builder()
+                .bucket("user-files")
+                .object(newPath)
+                .source(CopySource
+                        .builder()
+                        .bucket("user-files")
+                        .object(oldPath)
+                        .build())
+                .build());
+    }
     public void deleteUserObject(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.removeObject(RemoveObjectArgs
                 .builder()

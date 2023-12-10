@@ -1,8 +1,8 @@
 package cloudFileStorage.enums;
 
 public enum UserRoles {
-    USER("ROLE_USER"),
-    ADMIN("ROLE_ADMIN");
+    USER("USER"),
+    ADMIN("ADMIN");
     private String userRole;
     UserRoles(String userRole) {
         this.userRole = userRole;

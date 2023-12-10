@@ -28,9 +28,9 @@ public class UserObjectsService {
         this.userObjectsDAO = userObjectsDAO;
     }
 
-    public void createFolder(String userStorageName, String path, String userFolderName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        path = path.isEmpty() ? "" : path;
-        userObjectsDAO.createFolder(userStorageName + path + userFolderName + "/");
+    public void createFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String path = userFolderDTO.getPath().isEmpty() ? "" : userFolderDTO.getPath();
+        userObjectsDAO.createFolder(userStorageName + path + userFolderDTO.getName() + "/");
     }
 
     public void createUserStorage(String userStorageName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
@@ -60,23 +60,30 @@ public class UserObjectsService {
                 userObjectDTOList.add(new UserFileDTO(userObjectName, userObject.get().size(), userStorageName, path));
             }
         }
-
+//TODO STREAM API
         Collections.reverse(userObjectDTOList);
         return userObjectDTOList;
     }
 
-    public void deleteUserFile (String userStorageName, String path, String userFileName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsDAO.deleteUserObject(userStorageName + path + userFileName);
+    public void renameUserFile(String userStorageName, String oldUserFileName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String oldPath = userStorageName + userFileDTO.getPath() + oldUserFileName;
+        String newPath = userStorageName + userFileDTO.getPath() + userFileDTO.getName();
+        userObjectsDAO.copyUserObject(oldPath, newPath);
+        userObjectsDAO.deleteUserObject(oldPath);
     }
 
-    public void deleteUserFolder(String userStorageName, String path, String userFolderName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        Iterable<Result<Item>> userObjects = userObjectsDAO.getObjects(userStorageName + path + userFolderName,true);
+    public void deleteUserFile (String userStorageName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsDAO.deleteUserObject(userStorageName + userFileDTO.getPath() + userFileDTO.getName());
+    }
+
+    public void deleteUserFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        Iterable<Result<Item>> userObjects = userObjectsDAO.getObjects(userStorageName + userFolderDTO.getPath() + userFolderDTO.getName() + "/",true);
         List<DeleteObject> objectsForDeleting = new LinkedList<>();
         for (Result<Item> userObject : userObjects) {
             objectsForDeleting.add(new DeleteObject(userObject.get().objectName()));
         }
         if (objectsForDeleting.isEmpty()) {
-            userObjectsDAO.deleteUserObject(userStorageName + path + userFolderName + "/");
+            userObjectsDAO.deleteUserObject(userStorageName + userFolderDTO.getPath() + userFolderDTO.getName() + "/");
         } else {
             userObjectsDAO.deleteUserFolderWithContent(objectsForDeleting);
         }

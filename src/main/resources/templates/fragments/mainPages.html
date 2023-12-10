@@ -111,10 +111,11 @@
                         </form>
                     </li>
                     <li class="w-100">
-                        <form method="POST" th:action="@{/rename-file}" th:object="${userFileDTO}">
+                        <form th:method="PATCH" th:action="@{/rename-file}" th:object="${userFileDTO}">
                             <input type="text" th:name="name" placeholder="New file's name">
+                            <input type="text" name="oldName" hidden th:value="${userObjectDTO.getName()}">
                             <input type="text" th:name="path" hidden th:value="${param.get('path')}">
-                            <button type="button" class="btn dropdown-button w-100 p-1 d-block">Rename file</button>
+                            <button type="button" class="btn dropdown-button w-100 p-1 d-block" onclick="this.form.submit()">Rename file</button>
                         </form>
                     </li>
                     <li class="w-100">
