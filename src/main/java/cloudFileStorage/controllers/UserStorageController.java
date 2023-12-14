@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @Controller
 public class UserStorageController extends BaseController {
@@ -62,5 +64,12 @@ public class UserStorageController extends BaseController {
     public String deleteUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         userObjectsService.deleteUserFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);
+    }
+
+    @GetMapping("/search")
+    public String searchUserObjects(@RequestParam("query") String searchQuery, Model model) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        List<UserObjectDTO> userObjectDTOList = userObjectsService.getUserObjectsBySearchQuery(getUserStorageName(), searchQuery);
+        model.addAttribute("userObjectDTOList", userObjectDTOList);
+        return "searchResult";
     }
 }

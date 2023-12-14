@@ -32,8 +32,10 @@
 
     <div class="justify-content-center d-flex">
         <div class="breadcrumbs-area col-6">
-            <a th:href="@{/}" th:text="${userStorageName}"></a>
-            <a th:each="entry : ${breadcrumbs}" th:href="@{/(path=${entry.value})}" th:text="${entry.key}"></a>
+            <span th:each="entry : ${breadcrumbs}">
+                <a th:if="${entry.key} == ''" th:href="@{/}" th:text="${entry.value}"></a>
+                <a th:unless="${entry.key} == ''" th:href="@{/(path=${entry.key})}" th:text="${entry.value}"></a>
+            </span>
         </div>
         <div class="col-1 dropdown-center">
             <button type="button" class="btn light-button w-100 p-1" data-bs-toggle="dropdown">Create folder</button>

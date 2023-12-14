@@ -43,7 +43,7 @@ public class IndexPageController extends BaseController {
             return "index";
         }
 
-        List<UserObjectDTO> userObjectDTOList = userObjectsService.getObjects(getUserStorageName(), path);
+        List<UserObjectDTO> userObjectDTOList = userObjectsService.getUserObjects(getUserStorageName(), path);
         Map<String, String> breadcrumbs = userObjectsService.buildBreadcrumbs(getUserStorageName(), path);
 
         model.addAttribute("userStorageName", getUserStorageName());

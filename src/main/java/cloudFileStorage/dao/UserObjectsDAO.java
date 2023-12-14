@@ -26,7 +26,7 @@ public class UserObjectsDAO {
         this.minioClient = minioClient;
     }
 
-    public void createFolder(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void createUserFolder(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.putObject(PutObjectArgs
                 .builder()
                 .bucket("user-files")
@@ -45,12 +45,20 @@ public class UserObjectsDAO {
                 .build());
     }
 
-    public Iterable<Result<Item>> getObjects(String path, boolean isRecursive) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public Iterable<Result<Item>> getUserObjects(String path, boolean isRecursive) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         return minioClient.listObjects(ListObjectsArgs.builder()
                 .bucket("user-files")
-                .startAfter(path)
                 .prefix(path)
+                .startAfter(path)
                 .recursive(isRecursive)
+                .build());
+    }
+
+    public Iterable<Result<Item>> getUserFolders(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        return minioClient.listObjects(ListObjectsArgs.builder()
+                .bucket("user-files")
+                .prefix(path)
+                .delimiter("/")
                 .build());
     }
 
