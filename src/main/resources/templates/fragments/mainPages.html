@@ -89,8 +89,9 @@
 
                 <ul class="dropdown-menu" th:if="${userObjectDTO.isDir()}">
                     <li class="w-100">
-                        <a class="btn dropdown-button w-100 p-1" th:if="${param.isEmpty()}" th:href="@{/(path=${userObjectDTO.getName() + '/'} )}">Open folder</a>
-                        <a class="btn dropdown-button w-100 p-1" th:unless="${param.isEmpty()}" th:href="@{/(path=${param.get('path') + userObjectDTO.getName() + '/'})}">Open folder</a>
+                        <a class="btn dropdown-button w-100 p-1" th:href="@{/(path=${userObjectDTO.getPath()})}">Open folder</a>
+<!--                        <a class="btn dropdown-button w-100 p-1" th:if="${param.isEmpty()}" th:href="@{/(path=${userObjectDTO.getName() + '/'} )}">Open folder</a>-->
+<!--                        <a class="btn dropdown-button w-100 p-1" th:unless="${param.isEmpty()}" th:href="@{/(path=${param.get('path') + userObjectDTO.getName() + '/'})}">Open folder</a>-->
                     </li>
                     <li class="w-100">
                         <form method="POST">

@@ -54,10 +54,19 @@ public class UserObjectsService {
 
         for (Result<Item> userObject : userObjects) {
             String userObjectName = getUserObjectName(userObject.get().objectName());
+            String currentPath = userObject.get().objectName();
             if (userObject.get().isDir()) {
-                userObjectDTOList.add(new UserFolderDTO(userObjectName, userObject.get().size(), userStorageName, path));
+                userObjectDTOList.add(new UserFolderDTO(
+                        userObjectName,
+                        userObject.get().size(),
+                        userStorageName,
+                        buildUserFolderPath(currentPath)));
             } else {
-                userObjectDTOList.add(new UserFileDTO(userObjectName, userObject.get().size(), userStorageName, path));
+                userObjectDTOList.add(new UserFileDTO(
+                        userObjectName,
+                        userObject.get().size(),
+                        userStorageName,
+                        userObject.get().objectName()));
             }
         }
 //TODO STREAM API
@@ -73,7 +82,11 @@ public class UserObjectsService {
             String userObjectName = getUserObjectName(userObject.get().objectName());
             if (!isDir(userObject.get().objectName())) {
                 if (searchQuery.equals(userObjectName)) {
-                    userObjectDTOList.add(new UserFileDTO(userObject.get().objectName(), userObject.get().size(), userStorageName, userObject.get().objectName()));
+                    userObjectDTOList.add(new UserFileDTO(
+                            userObject.get().objectName(),
+                            userObject.get().size(),
+                            userStorageName,
+                            buildUserFolderPath(userObject.get().objectName())));
                 }
             }
         }
@@ -88,7 +101,7 @@ public class UserObjectsService {
         Iterable<Result<Item>> userFolders = userObjectsDAO.getUserObjects(path, false);
         for (Result<Item> userFolder : userFolders) {
             System.out.println(userFolder.get().objectName());
-            String userObjectPath = getUserObjectPathWithoutStorageName(userFolder.get().objectName());
+            String userObjectPath = buildUserFolderPath(userFolder.get().objectName());
             String userObjectName = getUserObjectName(userFolder.get().objectName());
             if (isDir(userFolder.get().objectName())) {
                 foldersQueue.add(userFolder.get().objectName());
@@ -132,10 +145,14 @@ public class UserObjectsService {
         return userObjectPathArr[userObjectPathArr.length - 1];
     }
 
-    private String getUserObjectPathWithoutStorageName(String userObjectName) {
-        String[] userObjectPathArr = userObjectName.split("/");
+    private String buildUserFolderPath(String path) {
+        String[] userObjectPathArr = path.split("/");
         StringBuilder userObjectPath = new StringBuilder();
-        for (int i = 1; i < userObjectPathArr.length; i++) {
+        int userObjectPathEnd = userObjectPathArr.length;
+        if (!isDir(path)) {
+            userObjectPathEnd = userObjectPathArr.length - 1;
+        }
+        for (int i = 1; i < userObjectPathEnd; i++) {
             userObjectPath.append(userObjectPathArr[i]).append("/");
         }
         return userObjectPath.toString();
