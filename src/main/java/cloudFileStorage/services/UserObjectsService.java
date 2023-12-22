@@ -4,6 +4,7 @@ import cloudFileStorage.dao.UserObjectsDAO;
 import cloudFileStorage.dto.UserFileDTO;
 import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
+import cloudFileStorage.exceptions.NameIsAlreadyTakenException;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.DeleteObject;
@@ -188,4 +189,13 @@ public class UserObjectsService {
         return userObjectDTOList;
     }
 
+    private void checkBusyUserObjectNames(String userStorageName, String path, String newUserObjectName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        getUserObjects(userStorageName, path);
+        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName, false);
+        for (Result<Item> userObject : userObjects) {
+            if (userObject.get().objectName().equals(newUserObjectName)) {
+                throw new NameIsAlreadyTakenException("This name is already taken");
+            }
+        }
+    }
 }
