@@ -48,7 +48,8 @@ public class UserObjectsService {
 //    }
 
     public List<UserObjectDTO> getUserObjects(String userStorageName, String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        List<UserObjectDTO> userObjectDTOList = new ArrayList<>();
+        List<UserFolderDTO> userFolderDTOList = new ArrayList<>();
+        List<UserFileDTO> userFileDTOList = new ArrayList<>();
         path = path == null ? "" : path;
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + path, false);
 
@@ -56,13 +57,13 @@ public class UserObjectsService {
             String userObjectName = getUserObjectName(userObject.get().objectName());
             String currentPath = userObject.get().objectName();
             if (userObject.get().isDir()) {
-                userObjectDTOList.add(new UserFolderDTO(
+                userFolderDTOList.add(new UserFolderDTO(
                         userObjectName,
                         userObject.get().size(),
                         userStorageName,
                         buildUserFolderPath(currentPath)));
             } else {
-                userObjectDTOList.add(new UserFileDTO(
+                userFileDTOList.add(new UserFileDTO(
                         userObjectName,
                         userObject.get().size(),
                         userStorageName,
@@ -70,51 +71,53 @@ public class UserObjectsService {
             }
         }
 //TODO STREAM API
-        Collections.reverse(userObjectDTOList);
-        return userObjectDTOList;
+        return sortUserObjectDTOList(userFolderDTOList, userFileDTOList);
     }
 
     public List<UserObjectDTO> getUserObjectsBySearchQuery(String userStorageName, String searchQuery) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        List<UserObjectDTO> userObjectDTOList = new ArrayList<>();
+        List<UserFolderDTO> userFolderDTOList = new ArrayList<>();
+        List<UserFileDTO> userFileDTOList = new ArrayList<>();
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName, true);
         for (Result<Item> userObject : userObjects) {
-            System.out.println(userObject.get().objectName());
             String userObjectName = getUserObjectName(userObject.get().objectName());
-            if (!isDir(userObject.get().objectName())) {
-                if (searchQuery.equals(userObjectName)) {
-                    userObjectDTOList.add(new UserFileDTO(
-                            userObject.get().objectName(),
-                            userObject.get().size(),
-                            userStorageName,
-                            buildUserFolderPath(userObject.get().objectName())));
-                }
+            if (searchQuery.equals(userObjectName) && isDir(userObject.get().objectName())) {
+                userFolderDTOList.add(new UserFolderDTO(
+                        userObject.get().objectName(),
+                        userObject.get().size(),
+                        userStorageName,
+                        buildUserFolderPath(userObject.get().objectName())));
+            }
+            if (searchQuery.equals(userObjectName) && !isDir(userObject.get().objectName())) {
+                userFileDTOList.add(new UserFileDTO(
+                        userObject.get().objectName(),
+                        userObject.get().size(),
+                        userStorageName,
+                        buildUserFolderPath(userObject.get().objectName())));
             }
         }
-        Queue<String> foldersForCheckQueue = new LinkedList<>();
-        userObjectDTOList = getUserFoldersBySearchQuery(userStorageName, searchQuery, userObjectDTOList, foldersForCheckQueue);
+
 //TODO STREAM API
-        Collections.reverse(userObjectDTOList);
-        return userObjectDTOList;
+        return sortUserObjectDTOList(userFolderDTOList, userFileDTOList);
     }
 
-    private List<UserObjectDTO> getUserFoldersBySearchQuery(String path, String searchQuery, List<UserObjectDTO> userObjectDTOList, Queue<String> foldersQueue) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        Iterable<Result<Item>> userFolders = userObjectsDAO.getUserObjects(path, false);
-        for (Result<Item> userFolder : userFolders) {
-            System.out.println(userFolder.get().objectName());
-            String userObjectPath = buildUserFolderPath(userFolder.get().objectName());
-            String userObjectName = getUserObjectName(userFolder.get().objectName());
-            if (isDir(userFolder.get().objectName())) {
-                foldersQueue.add(userFolder.get().objectName());
-                if (searchQuery.equals(userObjectName)) {
-                    userObjectDTOList.add(new UserFolderDTO(userFolder.get().objectName(), userFolder.get().size(), path, userObjectPath));
-                }
-            }
-        }
-        if (!foldersQueue.isEmpty()) {
-            userObjectDTOList = getUserFoldersBySearchQuery(foldersQueue.poll(), searchQuery, userObjectDTOList, foldersQueue);
-        }
-        return userObjectDTOList;
-    }
+//    private List<UserObjectDTO> getUserFoldersBySearchQuery(String path, String searchQuery, List<UserObjectDTO> userObjectDTOList, Queue<String> foldersQueue) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+//        Iterable<Result<Item>> userFolders = userObjectsDAO.getUserObjects(path, false);
+//        for (Result<Item> userFolder : userFolders) {
+//            System.out.println(userFolder.get().objectName());
+//            String userObjectPath = buildUserFolderPath(userFolder.get().objectName());
+//            String userObjectName = getUserObjectName(userFolder.get().objectName());
+//            if (isDir(userFolder.get().objectName())) {
+//                foldersQueue.add(userFolder.get().objectName());
+//                if (searchQuery.equals(userObjectName)) {
+//                    userObjectDTOList.add(new UserFolderDTO(userFolder.get().objectName(), userFolder.get().size(), path, userObjectPath));
+//                }
+//            }
+//        }
+//        if (!foldersQueue.isEmpty()) {
+//            userObjectDTOList = getUserFoldersBySearchQuery(foldersQueue.poll(), searchQuery, userObjectDTOList, foldersQueue);
+//        }
+//        return userObjectDTOList;
+//    }
 
     public void renameUserFile(String userStorageName, String oldUserFileName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String oldPath = userStorageName + userFileDTO.getPath() + oldUserFileName;
@@ -133,11 +136,8 @@ public class UserObjectsService {
         for (Result<Item> userObject : userObjects) {
             objectsForDeleting.add(new DeleteObject(userObject.get().objectName()));
         }
-        if (objectsForDeleting.isEmpty()) {
-            userObjectsDAO.deleteUserObject(userStorageName + userFolderDTO.getPath() + userFolderDTO.getName() + "/");
-        } else {
-            userObjectsDAO.deleteUserFolderWithContent(objectsForDeleting);
-        }
+        objectsForDeleting.add(new DeleteObject(userStorageName + userFolderDTO.getPath() + userFolderDTO.getName() + "/"));
+        userObjectsDAO.deleteUserFolderWithContent(objectsForDeleting);
     }
 
     private String getUserObjectName(String userObjectPath) {
@@ -177,4 +177,15 @@ public class UserObjectsService {
         }
         return breadcrumbs;
     }
+
+    private List<UserObjectDTO> sortUserObjectDTOList(List<UserFolderDTO> userFolderDTOList, List<UserFileDTO> userFileDTOList) {
+        Comparator<UserObjectDTO> userObjectDTOComparator = Comparator.comparing(UserObjectDTO::getName);
+        Collections.sort(userFolderDTOList, userObjectDTOComparator);
+        Collections.sort(userFileDTOList, userObjectDTOComparator);
+        List<UserObjectDTO> userObjectDTOList = new ArrayList<>();
+        userObjectDTOList.addAll(userFolderDTOList);
+        userObjectDTOList.addAll(userFileDTOList);
+        return userObjectDTOList;
+    }
+
 }
