@@ -12,8 +12,136 @@
 <div class="fluid-container">
     <div sec:authorize="isAnonymous()" th:insert="~{/fragments/headers :: unauthorized-user-header}"></div>
     <div sec:authorize="!isAnonymous()" th:insert="~{/fragments/headers :: authorized-user-header}"></div>
-    <div sec:authorize="isAnonymous()" th:insert="~{/fragments/mainPages:: unauthorized-user-mainPage}"></div>
-    <div sec:authorize="!isAnonymous()" th:insert="~{/fragments/mainPages:: authorized-user-mainPage}"></div>
+<!--    <div sec:authorize="isAnonymous()" th:insert="~{/fragments/mainPages:: unauthorized-user-mainPage}"></div>-->
+<!--    <div sec:authorize="!isAnonymous()" th:insert="~{/fragments/mainPages:: authorized-user-mainPage}"></div>-->
+    <div sec:authorize="isAnonymous()" class="row d-flex justify-content-center mt-5">
+        <div class="col-6 justify-content-center align-items-center d-flex">
+            <div>
+                <h1 class="text-center">Cloud file storage service</h1>
+                <h4 class="text-center">The service is available only to registered users</h4>
+            </div>
+        </div>
+        <div class="col-6"><img src="/images/floppy-disks.png"></div>
+    </div>
+
+    <div sec:authorize="!isAnonymous()" class="my-5">
+        <div class="mb-5">
+            <div class="justify-content-center align-content-center d-flex">
+                <form class="justify-content-center align-content-center d-flex col-8" th:method="GET" th:action="@{/search}">
+                    <input class="col-6 h-100" type="text" name="query">
+                    <button class="btn light-button text-center col-2 p-1">Search file</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="justify-content-center d-flex">
+            <div class="breadcrumbs-area col-6">
+            <span th:each="entry : ${breadcrumbs}">
+                <a th:if="${entry.key} == ''" th:href="@{/}" th:text="${entry.value}"></a>
+                <a th:unless="${entry.key} == ''" th:href="@{/(path=${entry.key})}" th:text="${entry.value}"></a>
+            </span>
+            </div>
+            <div class="col-1 dropdown-center">
+                <button type="button" class="btn light-button w-100 p-1" data-bs-toggle="dropdown">Create folder</button>
+                <ul class="dropdown-menu">
+                    <li class="w-100">
+                        <form th:method="POST" th:action="@{/create/folder}" th:object="${userFolderDTO}">
+                            <input type="text" th:name="shortName" placeholder="Folder's name">
+                            <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+                            <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Submit</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-1">
+                <div class="dropdown-center">
+                    <button type="button" class="btn light-button w-100 p-1" data-bs-toggle="dropdown">Upload</button>
+                    <ul class="dropdown-menu">
+                        <li class="w-100">
+                            <form method="POST" enctype="multipart/form-data" th:action="@{/upload}">
+                                <input type="text" name="path" hidden th:value="${param.get('path')}">
+                                <input id="upload-file" type="file" name="userObject" multiple hidden onchange="this.form.submit()">
+                                <label for="upload-file" class="btn dropdown-button w-100">Upload file</label>
+                            </form>
+                        </li>
+                        <li class="w-100">
+                            <form method="POST" enctype="multipart/form-data" >
+                                <input id="upload-folder" type="file" name="userObject" multiple webkitdirectory hidden>
+                                <label for="upload-folder" class="btn dropdown-button w-100">Upload folder</label>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="justify-content-center d-flex">
+            <div class="browser-area col-8">
+                <div class="justify-content-between d-flex col-12 fs-5 userObjects-area">
+                    <div class="col-9 dark-text ps-1">Name</div>
+                    <div class="col-3 dark-text">Size</div>
+                </div>
+
+                <div class="dropend" th:each="userObjectDTO : ${userObjectDTOList}">
+
+                    <button type="button" class="btn userObjects-button w-100 col-12 fs-6 d-flex px-0 py-2" data-bs-toggle="dropdown">
+                        <div class="col-9 ps-1 justify-content-start align-items-center d-flex">
+                            <i class="fa-solid fa-folder" style="color: #f0dd0f;" th:if="${userObjectDTO.isDir()}"></i>
+                            <i class="fa-solid fa-file fa-lg" style="color: #0e58d8;" th:if="${!userObjectDTO.isDir()}"></i>
+                            <span class="ms-1" th:text="${userObjectDTO.getShortName()}"></span></div>
+                        <div class="col-3 justify-content-start d-flex align-items-center" th:text="${userObjectDTO.getSize()}"></div>
+                    </button>
+
+                    <ul class="dropdown-menu" th:if="${userObjectDTO.isDir()}">
+                        <li class="w-100">
+                            <a class="btn dropdown-button w-100 p-1" th:href="@{/(path=${userObjectDTO.getName()})}">Open folder</a>
+                        </li>
+                        <li class="w-100">
+                            <form th:method="PATCH" th:action="@{/rename/folder}" th:object="${userFolderDTO}">
+                                <input type="text" th:name="shortName" placeholder="New folder's name">
+                                <input type="text" name="oldShortUserFolderName" hidden th:value="${userObjectDTO.getShortName()}">
+                                <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+                                <button type="button" class="btn dropdown-button w-100 p-1 d-block" onclick="this.form.submit()">Rename folder</button>
+                            </form>
+                        </li>
+                        <li class="w-100">
+                            <form th:method="DELETE" th:action="@{/delete/folder}" th:object="${userFolderDTO}">
+                                <input type="text" th:name="name" hidden th:value="${userObjectDTO.getName()}">
+                                <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+                                <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Delete folder</button>
+                            </form>
+                        </li>
+                    </ul>
+
+                    <ul class="dropdown-menu" th:if="${!userObjectDTO.isDir()}">
+                        <li class="w-100">
+                            <form method="GET" th:action="@{/download/file}" th:object="${userFileDTO}">
+                                <input type="text" th:name="name" hidden th:value="${userObjectDTO.getName()}">
+                                <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+                                <button type="button" class="btn dropdown-button w-100 p-1 d-block" onclick="this.form.submit()">Download file</button>
+                            </form>
+                        </li>
+                        <li class="w-100">
+                            <form th:method="PATCH" th:action="@{/rename/file}" th:object="${userFileDTO}">
+                                <input type="text" th:name="shortName" placeholder="New file's name">
+                                <input type="text" name="oldShortUserFileName" hidden th:value="${userObjectDTO.getShortName()}">
+                                <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+                                <button type="button" class="btn dropdown-button w-100 p-1 d-block" onclick="this.form.submit()">Rename file</button>
+                            </form>
+                        </li>
+                        <li class="w-100">
+                            <form class="justify-content-center d-flex" th:method="DELETE" th:action="@{/delete/file}" th:object="${userFileDTO}">
+                                <input type="text" th:name="name" hidden th:value="${userObjectDTO.getName()}">
+                                <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+                                <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Delete file</button>
+                            </form>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="m-5"></div>
 </div>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package cloudFileStorage.dao;
 
+import cloudFileStorage.dto.UserFileDTO;
 import cloudFileStorage.dto.UserObjectDTO;
 import io.minio.*;
 import io.minio.errors.*;
@@ -26,11 +27,11 @@ public class UserObjectsDAO {
         this.minioClient = minioClient;
     }
 
-    public void createUserFolder(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void createUserFolder(String newUserFolderName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.putObject(PutObjectArgs
                 .builder()
                 .bucket("user-files")
-                .object(path)
+                .object(newUserFolderName)
                 .stream(new ByteArrayInputStream(new byte[] {}), 0, -1)
                 .build());
     }
@@ -72,6 +73,15 @@ public class UserObjectsDAO {
                         .bucket("user-files")
                         .object(oldPath)
                         .build())
+                .build());
+    }
+
+    public void downloadUserFile(String shortUserFileName, String UserFileName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        minioClient.downloadObject(DownloadObjectArgs
+                .builder()
+                .bucket("user-files")
+                .object(UserFileName)
+                .filename(shortUserFileName)
                 .build());
     }
     public void deleteUserObject(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {

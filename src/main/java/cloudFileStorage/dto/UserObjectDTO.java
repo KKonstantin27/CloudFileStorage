@@ -11,13 +11,15 @@ import lombok.Setter;
 @Setter
 public class UserObjectDTO {
     private String name;
+    private String shortName;
     private String size;
     private String userStorageName;
     private String path;
     boolean isDir;
 
-    public UserObjectDTO(String name, String size, String userStorageName, String path, boolean isDir) {
+    public UserObjectDTO(String name, String shortName, String size, String userStorageName, String path, boolean isDir) {
         this.name = name;
+        this.shortName = shortName;
         this.size = size;
         this.userStorageName = userStorageName;
         this.path = path;

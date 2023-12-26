@@ -39,7 +39,7 @@
 
                     <ul class="dropdown-menu" th:if="${userObjectDTO.isDir()}">
                         <li class="w-100">
-                            <a class="btn dropdown-button w-100 p-1" th:href="@{/(path=${userObjectDTO.getPath()})}">Open folder</a>
+                            <a class="btn dropdown-button w-100 p-1" th:href="@{/(path=${userObjectDTO.getName()})}">Open folder</a>
                         </li>
                     </ul>
 

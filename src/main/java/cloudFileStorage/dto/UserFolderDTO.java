@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 public class UserFolderDTO extends UserObjectDTO {
 
-    public UserFolderDTO (String name, long size, String userStorageName, String path) {
-        super(name, "-", userStorageName, path, true);
+    public UserFolderDTO (String name, String shortName, String userStorageName, String path) {
+        super(name, shortName, "-", userStorageName, path, true);
     }
 
 }

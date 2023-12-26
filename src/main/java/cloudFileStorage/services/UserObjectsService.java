@@ -11,10 +11,7 @@ import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -29,9 +26,11 @@ public class UserObjectsService {
         this.userObjectsDAO = userObjectsDAO;
     }
 
-    public void createFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void createUserFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String path = userFolderDTO.getPath().isEmpty() ? "" : userFolderDTO.getPath();
-        userObjectsDAO.createUserFolder(userStorageName + path + userFolderDTO.getName() + "/");
+        String newUserFolderName = userStorageName + path + userFolderDTO.getShortName() + "/";
+        checkBusyUserObjectNames(userStorageName, path, userFolderDTO.getShortName());
+        userObjectsDAO.createUserFolder(newUserFolderName);
     }
 
     public void createUserStorage(String userStorageName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
@@ -55,20 +54,22 @@ public class UserObjectsService {
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + path, false);
 
         for (Result<Item> userObject : userObjects) {
-            String userObjectName = getUserObjectName(userObject.get().objectName());
-            String currentPath = userObject.get().objectName();
+            String shortUserObjectName = getShortUserObjectName(userObject.get().objectName());
+            String userObjectName = buildUserObjectNameWithoutStorageName(userObject.get().objectName());
+            String userObjectPath = buildUserObjectPathWithoutStorageName(userObject.get().objectName());
             if (userObject.get().isDir()) {
                 userFolderDTOList.add(new UserFolderDTO(
                         userObjectName,
-                        userObject.get().size(),
+                        shortUserObjectName,
                         userStorageName,
-                        buildUserFolderPath(currentPath)));
+                        userObjectPath));
             } else {
                 userFileDTOList.add(new UserFileDTO(
                         userObjectName,
+                        shortUserObjectName,
                         userObject.get().size(),
                         userStorageName,
-                        userObject.get().objectName()));
+                        userObjectPath));
             }
         }
 //TODO STREAM API
@@ -80,20 +81,23 @@ public class UserObjectsService {
         List<UserFileDTO> userFileDTOList = new ArrayList<>();
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName, true);
         for (Result<Item> userObject : userObjects) {
-            String userObjectName = getUserObjectName(userObject.get().objectName());
-            if (searchQuery.equals(userObjectName) && isDir(userObject.get().objectName())) {
+            String userObjectName = buildUserObjectNameWithoutStorageName(userObject.get().objectName());
+            String shortUserObjectName = getShortUserObjectName(userObject.get().objectName());
+            String userObjectPath = buildUserObjectPathWithoutStorageName(userObject.get().objectName());
+            if (searchQuery.equals(shortUserObjectName) && isDir(userObjectName)) {
                 userFolderDTOList.add(new UserFolderDTO(
-                        userObject.get().objectName(),
-                        userObject.get().size(),
+                        userObjectName,
+                        shortUserObjectName,
                         userStorageName,
-                        buildUserFolderPath(userObject.get().objectName())));
+                        userObjectPath));
             }
-            if (searchQuery.equals(userObjectName) && !isDir(userObject.get().objectName())) {
+            if (searchQuery.equals(shortUserObjectName) && !isDir(userObject.get().objectName())) {
                 userFileDTOList.add(new UserFileDTO(
-                        userObject.get().objectName(),
+                        userObjectName,
+                        shortUserObjectName,
                         userObject.get().size(),
                         userStorageName,
-                        buildUserFolderPath(userObject.get().objectName())));
+                        userObjectPath));
             }
         }
 
@@ -120,47 +124,37 @@ public class UserObjectsService {
 //        return userObjectDTOList;
 //    }
 
-    public void renameUserFile(String userStorageName, String oldUserFileName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String oldPath = userStorageName + userFileDTO.getPath() + oldUserFileName;
-        String newPath = userStorageName + userFileDTO.getPath() + userFileDTO.getName();
-        userObjectsDAO.copyUserObject(oldPath, newPath);
-        userObjectsDAO.deleteUserObject(oldPath);
+    public void downloadUserFile(String userStorageName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsDAO.downloadUserFile(userFileDTO.getName(), userStorageName + userFileDTO.getPath() + userFileDTO.getName());
+    }
+    public void renameUserFolder(String userStorageName, String oldShortUserFolderName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String oldUserFileName = userStorageName + userFolderDTO.getPath() + oldShortUserFolderName;
+        String newUserFileName = userFolderDTO.getName();
+        checkBusyUserObjectNames(userStorageName, userFolderDTO.getPath(), newUserFileName);
+        userObjectsDAO.copyUserObject(oldUserFileName, newUserFileName);
+        userObjectsDAO.deleteUserObject(oldUserFileName);
+    }
+
+    public void renameUserFile(String userStorageName, String oldShortUserFileName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String oldUserFileName = userStorageName + userFileDTO.getPath() + oldShortUserFileName;
+        String newUserFileName = userStorageName + userFileDTO.getPath() + userFileDTO.getShortName();
+        checkBusyUserObjectNames(userStorageName, userFileDTO.getPath(), userFileDTO.getShortName());
+        userObjectsDAO.copyUserObject(oldUserFileName, newUserFileName);
+        userObjectsDAO.deleteUserObject(oldUserFileName);
     }
 
     public void deleteUserFile (String userStorageName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsDAO.deleteUserObject(userStorageName + userFileDTO.getPath() + userFileDTO.getName());
+        userObjectsDAO.deleteUserObject(userStorageName + userFileDTO.getName());
     }
 
     public void deleteUserFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + userFolderDTO.getPath() + userFolderDTO.getName() + "/",true);
+        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + userFolderDTO.getName(),true);
         List<DeleteObject> objectsForDeleting = new LinkedList<>();
         for (Result<Item> userObject : userObjects) {
             objectsForDeleting.add(new DeleteObject(userObject.get().objectName()));
         }
-        objectsForDeleting.add(new DeleteObject(userStorageName + userFolderDTO.getPath() + userFolderDTO.getName() + "/"));
+        objectsForDeleting.add(new DeleteObject(userStorageName + userFolderDTO.getName()));
         userObjectsDAO.deleteUserFolderWithContent(objectsForDeleting);
-    }
-
-    private String getUserObjectName(String userObjectPath) {
-        String[] userObjectPathArr = userObjectPath.split("/");
-        return userObjectPathArr[userObjectPathArr.length - 1];
-    }
-
-    private String buildUserFolderPath(String path) {
-        String[] userObjectPathArr = path.split("/");
-        StringBuilder userObjectPath = new StringBuilder();
-        int userObjectPathEnd = userObjectPathArr.length;
-        if (!isDir(path)) {
-            userObjectPathEnd = userObjectPathArr.length - 1;
-        }
-        for (int i = 1; i < userObjectPathEnd; i++) {
-            userObjectPath.append(userObjectPathArr[i]).append("/");
-        }
-        return userObjectPath.toString();
-    }
-
-    private boolean isDir(String fullUserObjectName) {
-        return fullUserObjectName.endsWith("/");
     }
 
     public Map<String, String> buildBreadcrumbs(String userStorageName, String path) {
@@ -179,6 +173,32 @@ public class UserObjectsService {
         return breadcrumbs;
     }
 
+    private String getShortUserObjectName(String userObjectName) {
+        String[] userObjectNameArr = userObjectName.split("/");
+        return userObjectNameArr[userObjectNameArr.length - 1];
+    }
+
+    private String buildUserObjectNameWithoutStorageName(String userObjectName) {
+        String[] userObjectNameArr = userObjectName.split("/");
+        StringBuilder userObjectNameWithoutStorageName = new StringBuilder();
+        for (int i = 1; i < userObjectNameArr.length; i++) {
+            if (i == userObjectNameArr.length - 1 && !isDir(userObjectName)) {
+                userObjectNameWithoutStorageName.append(userObjectNameArr[i]);
+            } else {
+                userObjectNameWithoutStorageName.append(userObjectNameArr[i]).append("/");
+            }
+        }
+        return userObjectNameWithoutStorageName.toString();
+    }
+    private String buildUserObjectPathWithoutStorageName(String userObjectName) {
+        String[] userObjectNameArr = userObjectName.split("/");
+        StringBuilder userObjectPath = new StringBuilder();
+        for (int i = 1; i < userObjectNameArr.length - 1; i++) {
+            userObjectPath.append(userObjectNameArr[i]).append("/");
+        }
+        return userObjectPath.toString();
+    }
+
     private List<UserObjectDTO> sortUserObjectDTOList(List<UserFolderDTO> userFolderDTOList, List<UserFileDTO> userFileDTOList) {
         Comparator<UserObjectDTO> userObjectDTOComparator = Comparator.comparing(UserObjectDTO::getName);
         Collections.sort(userFolderDTOList, userObjectDTOComparator);
@@ -190,12 +210,15 @@ public class UserObjectsService {
     }
 
     private void checkBusyUserObjectNames(String userStorageName, String path, String newUserObjectName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        getUserObjects(userStorageName, path);
-        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName, false);
+        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + path, false);
         for (Result<Item> userObject : userObjects) {
-            if (userObject.get().objectName().equals(newUserObjectName)) {
+            if (getShortUserObjectName(userObject.get().objectName()).equals(newUserObjectName)) {
                 throw new NameIsAlreadyTakenException("This name is already taken");
             }
         }
+    }
+
+    private boolean isDir(String userObjectName) {
+        return userObjectName.endsWith("/");
     }
 }

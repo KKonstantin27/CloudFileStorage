@@ -41,26 +41,39 @@ public class UserStorageController extends BaseController {
 //        }
 //    }
 
-    @PostMapping("/create-folder")
+    @PostMapping("/create/folder")
     public String createFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.createFolder(getUserStorageName(), userFolderDTO);
+        userObjectsService.createUserFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);
     }
 
-    @PatchMapping("/rename-file")
-    public String renameUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO,
-                                 @RequestParam("oldName") String oldUserFileName) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.renameUserFile(getUserStorageName(), oldUserFileName, userFileDTO);
+    @GetMapping("/download/file")
+    public String downloadUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.downloadUserFile(getUserStorageName(), userFileDTO);
         return getRedirectURL(userFileDTO);
     }
 
-    @DeleteMapping(value = "/delete-file")
+    @PatchMapping("/rename/file")
+    public String renameUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO,
+                                 @RequestParam("oldShortUserFileName") String oldShortUserFileName) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.renameUserFile(getUserStorageName(), oldShortUserFileName, userFileDTO);
+        return getRedirectURL(userFileDTO);
+    }
+
+    @PatchMapping("/rename/folder")
+    public String renameUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO,
+                                 @RequestParam("oldShortUserFolderName") String oldShortUserFolderName) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.renameUserFolder(getUserStorageName(), oldShortUserFolderName, userFolderDTO);
+        return getRedirectURL(userFolderDTO);
+    }
+
+    @DeleteMapping(value = "/delete/file")
     public String deleteUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         userObjectsService.deleteUserFile(getUserStorageName(), userFileDTO);
         return getRedirectURL(userFileDTO);
     }
 
-    @DeleteMapping(value = "delete-folder")
+    @DeleteMapping(value = "delete/folder")
     public String deleteUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         userObjectsService.deleteUserFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);
