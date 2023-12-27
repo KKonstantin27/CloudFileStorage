@@ -57,23 +57,23 @@ public class UserObjectsDAO {
                 .build());
     }
 
-    public Iterable<Result<Item>> getUserFolders(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        return minioClient.listObjects(ListObjectsArgs.builder()
-                .bucket("user-files")
-                .prefix(path)
-                .delimiter("/")
-                .build());
-    }
+//    public Iterable<Result<Item>> getUserFolders(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+//        return minioClient.listObjects(ListObjectsArgs.builder()
+//                .bucket("user-files")
+//                .prefix(path)
+//                .delimiter("/")
+//                .build());
+//    }
 
-    public void copyUserObject(String oldPath, String newPath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void copyUserObject(String oldUserObjectName, String newUserObjectName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.copyObject(CopyObjectArgs
                 .builder()
                 .bucket("user-files")
-                .object(newPath)
+                .object(newUserObjectName)
                 .source(CopySource
                         .builder()
                         .bucket("user-files")
-                        .object(oldPath)
+                        .object(oldUserObjectName)
                         .build())
                 .build());
     }

@@ -30,7 +30,7 @@ public class UserStorageController extends BaseController {
         this.userObjectsService = userObjectsService;
     }
 
-//    @PostMapping("/upload")
+//    @PostMapping("/upload/file")
 //    public String uploadFiles(@RequestParam(value = "path", required = false) String path,
 //                              @RequestParam("userObject") MultipartFile userObject) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
 //        userObjectsService.uploadUserObject(getUserStorageName() + path, userObject);
@@ -47,13 +47,13 @@ public class UserStorageController extends BaseController {
         return getRedirectURL(userFolderDTO);
     }
 
-    @GetMapping("/download/file")
+    @PostMapping("/download/file")
     public String downloadUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         userObjectsService.downloadUserFile(getUserStorageName(), userFileDTO);
         return getRedirectURL(userFileDTO);
     }
 
-    @GetMapping("/download/folder")
+    @PostMapping("/download/folder")
     public String downloadUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         userObjectsService.downloadUserFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);

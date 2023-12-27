@@ -135,11 +135,18 @@ public class UserObjectsService {
     }
 
     public void renameUserFolder(String userStorageName, String oldShortUserFolderName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String oldUserFileName = userStorageName + userFolderDTO.getPath() + oldShortUserFolderName;
-        String newUserFileName = userFolderDTO.getName();
-        checkBusyUserObjectNames(userStorageName, userFolderDTO.getPath(), newUserFileName);
-        userObjectsDAO.copyUserObject(oldUserFileName, newUserFileName);
-        userObjectsDAO.deleteUserObject(oldUserFileName);
+        String oldUserFolderName = userStorageName + userFolderDTO.getPath() + oldShortUserFolderName + "/";
+        String newUserFolderName = userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName() + "/";
+        checkBusyUserObjectNames(userStorageName, userFolderDTO.getPath(), userFolderDTO.getShortName());
+        userObjectsDAO.copyUserObject(oldUserFolderName, newUserFolderName);
+        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(oldUserFolderName, true);
+        for (Result<Item> userObject : userObjects) {
+            String oldUserObjectName = userObject.get().objectName();
+            String newUserObjectName = oldUserObjectName.replace(oldUserFolderName, newUserFolderName);
+            userObjectsDAO.copyUserObject(oldUserObjectName, newUserObjectName);
+            userObjectsDAO.deleteUserObject(oldUserObjectName);
+        }
+        userObjectsDAO.deleteUserObject(oldUserFolderName);
     }
 
     public void renameUserFile(String userStorageName, String oldShortUserFileName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
