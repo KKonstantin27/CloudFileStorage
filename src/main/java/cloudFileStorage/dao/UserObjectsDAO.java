@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -76,14 +78,23 @@ public class UserObjectsDAO {
                 .build());
     }
 
-    public void downloadUserFile(String shortUserFileName, String UserFileName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        minioClient.downloadObject(DownloadObjectArgs
+    public InputStream downloadUserFolder(String UserFileName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        return minioClient.getObject(GetObjectArgs
                 .builder()
                 .bucket("user-files")
                 .object(UserFileName)
-                .filename(shortUserFileName)
                 .build());
     }
+
+    public void downloadUserFile(String userFileName, String outputPath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        minioClient.downloadObject(DownloadObjectArgs
+                .builder()
+                .bucket("user-files")
+                .object(userFileName)
+                .filename(outputPath)
+                .build());
+    }
+
     public void deleteUserObject(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.removeObject(RemoveObjectArgs
                 .builder()

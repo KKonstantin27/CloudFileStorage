@@ -96,6 +96,13 @@
                             <a class="btn dropdown-button w-100 p-1" th:href="@{/(path=${userObjectDTO.getName()})}">Open folder</a>
                         </li>
                         <li class="w-100">
+                            <form method="GET" th:action="@{/download/folder}" th:object="${userFolderDTO}">
+                                <input type="text" th:name="shortName" hidden th:value="${userObjectDTO.getShortName()}">
+                                <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+                                <button type="button" class="btn dropdown-button w-100 p-1 d-block" onclick="this.form.submit()">Download folder</button>
+                            </form>
+                        </li>
+                        <li class="w-100">
                             <form th:method="PATCH" th:action="@{/rename/folder}" th:object="${userFolderDTO}">
                                 <input type="text" th:name="shortName" placeholder="New folder's name">
                                 <input type="text" name="oldShortUserFolderName" hidden th:value="${userObjectDTO.getShortName()}">
@@ -115,7 +122,7 @@
                     <ul class="dropdown-menu" th:if="${!userObjectDTO.isDir()}">
                         <li class="w-100">
                             <form method="GET" th:action="@{/download/file}" th:object="${userFileDTO}">
-                                <input type="text" th:name="name" hidden th:value="${userObjectDTO.getName()}">
+                                <input type="text" th:name="shortName" hidden th:value="${userObjectDTO.getShortName()}">
                                 <input type="text" th:name="path" hidden th:value="${param.get('path')}">
                                 <button type="button" class="btn dropdown-button w-100 p-1 d-block" onclick="this.form.submit()">Download file</button>
                             </form>

@@ -53,6 +53,12 @@ public class UserStorageController extends BaseController {
         return getRedirectURL(userFileDTO);
     }
 
+    @GetMapping("/download/folder")
+    public String downloadUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.downloadUserFolder(getUserStorageName(), userFolderDTO);
+        return getRedirectURL(userFolderDTO);
+    }
+
     @PatchMapping("/rename/file")
     public String renameUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO,
                                  @RequestParam("oldShortUserFileName") String oldShortUserFileName) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {

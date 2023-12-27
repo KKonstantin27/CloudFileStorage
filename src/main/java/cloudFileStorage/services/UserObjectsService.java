@@ -12,10 +12,12 @@ import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class UserObjectsService {
@@ -100,33 +102,38 @@ public class UserObjectsService {
                         userObjectPath));
             }
         }
-
 //TODO STREAM API
         return sortUserObjectDTOList(userFolderDTOList, userFileDTOList);
     }
 
-//    private List<UserObjectDTO> getUserFoldersBySearchQuery(String path, String searchQuery, List<UserObjectDTO> userObjectDTOList, Queue<String> foldersQueue) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-//        Iterable<Result<Item>> userFolders = userObjectsDAO.getUserObjects(path, false);
-//        for (Result<Item> userFolder : userFolders) {
-//            System.out.println(userFolder.get().objectName());
-//            String userObjectPath = buildUserFolderPath(userFolder.get().objectName());
-//            String userObjectName = getUserObjectName(userFolder.get().objectName());
-//            if (isDir(userFolder.get().objectName())) {
-//                foldersQueue.add(userFolder.get().objectName());
-//                if (searchQuery.equals(userObjectName)) {
-//                    userObjectDTOList.add(new UserFolderDTO(userFolder.get().objectName(), userFolder.get().size(), path, userObjectPath));
-//                }
-//            }
-//        }
-//        if (!foldersQueue.isEmpty()) {
-//            userObjectDTOList = getUserFoldersBySearchQuery(foldersQueue.poll(), searchQuery, userObjectDTOList, foldersQueue);
-//        }
-//        return userObjectDTOList;
-//    }
-
     public void downloadUserFile(String userStorageName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsDAO.downloadUserFile(userFileDTO.getName(), userStorageName + userFileDTO.getPath() + userFileDTO.getName());
+        String outputPath = System.getProperty("user.home") + "/Downloads/" + userFileDTO.getShortName();
+        userObjectsDAO.downloadUserFile(userStorageName + userFileDTO.getPath() + userFileDTO.getShortName(), outputPath);
     }
+
+    public void downloadUserFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String outputPath = System.getProperty("user.home") + "/Downloads/" + userFolderDTO.getShortName();
+        String zipFile = outputPath + ".zip";
+        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName(), true);
+        FileOutputStream fos = new FileOutputStream(zipFile);
+        ZipOutputStream zos = new ZipOutputStream(fos);
+        for (Result<Item> userObject : userObjects) {
+            try (InputStream is = userObjectsDAO.downloadUserFolder(userObject.get().objectName())) {
+                zos.putNextEntry(new ZipEntry(buildUserObjectNameWithoutStorageName(userObject.get().objectName())));
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    zos.write(buffer, 0, bytesRead);
+                }
+                zos.closeEntry();
+            }
+        }
+        zos.close();
+        fos.close();
+    }
+
     public void renameUserFolder(String userStorageName, String oldShortUserFolderName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String oldUserFileName = userStorageName + userFolderDTO.getPath() + oldShortUserFolderName;
         String newUserFileName = userFolderDTO.getName();
