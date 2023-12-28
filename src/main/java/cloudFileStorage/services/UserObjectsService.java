@@ -11,6 +11,7 @@ import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.security.InvalidKeyException;
@@ -39,15 +40,11 @@ public class UserObjectsService {
         userObjectsDAO.createUserFolder(userStorageName + "/");
     }
 
-//    public void uploadUserObject(String path, MultipartFile userObject) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-//        minioClient.putObject(PutObjectArgs
-//                .builder()
-//                .bucket("user-files")
-//                .object(path + userObject.getOriginalFilename())
-//                .stream(userObject.getInputStream(), userObject.getSize(), -1)
-//                .contentType(userObject.getContentType())
-//                .build());
-//    }
+    public void uploadUserObjects(String userStorageName, String path, MultipartFile[] userObjects) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        for (MultipartFile userObject : userObjects) {
+            userObjectsDAO.uploadUserObject(userStorageName + path, userObject);
+        }
+    }
 
     public List<UserObjectDTO> getUserObjects(String userStorageName, String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         List<UserFolderDTO> userFolderDTOList = new ArrayList<>();

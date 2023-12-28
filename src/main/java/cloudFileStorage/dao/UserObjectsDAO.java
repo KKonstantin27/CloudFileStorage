@@ -38,13 +38,13 @@ public class UserObjectsDAO {
                 .build());
     }
 
-    public void uploadUserObject(String path, MultipartFile userObject) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void uploadUserObject(String path, MultipartFile userFile) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.putObject(PutObjectArgs
                 .builder()
                 .bucket("user-files")
-                .object(path + userObject.getOriginalFilename())
-                .stream(userObject.getInputStream(), userObject.getSize(), -1)
-                .contentType(userObject.getContentType())
+                .object(path + userFile.getOriginalFilename())
+                .stream(userFile.getInputStream(), userFile.getSize(), -1)
+                .contentType(userFile.getContentType())
                 .build());
     }
 
@@ -56,14 +56,6 @@ public class UserObjectsDAO {
                 .recursive(isRecursive)
                 .build());
     }
-
-//    public Iterable<Result<Item>> getUserFolders(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-//        return minioClient.listObjects(ListObjectsArgs.builder()
-//                .bucket("user-files")
-//                .prefix(path)
-//                .delimiter("/")
-//                .build());
-//    }
 
     public void copyUserObject(String oldUserObjectName, String newUserObjectName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.copyObject(CopyObjectArgs

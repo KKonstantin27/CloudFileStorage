@@ -65,8 +65,9 @@
                             </form>
                         </li>
                         <li class="w-100">
-                            <form method="POST" enctype="multipart/form-data" >
-                                <input id="upload-folder" type="file" name="userObject" multiple webkitdirectory hidden>
+                            <form method="POST" enctype="multipart/form-data" th:action="@{/upload}">
+                                <input type="text" name="path" hidden th:value="${param.get('path')}">
+                                <input id="upload-folder" type="file" name="userObject" webkitdirectory hidden onchange="this.form.submit()">
                                 <label for="upload-folder" class="btn dropdown-button w-100">Upload folder</label>
                             </form>
                         </li>

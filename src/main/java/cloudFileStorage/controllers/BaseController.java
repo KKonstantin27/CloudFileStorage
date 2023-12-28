@@ -20,4 +20,8 @@ public class BaseController {
     public String getRedirectURL(UserObjectDTO userObjectDTO) throws UnsupportedEncodingException {
         return userObjectDTO.getPath().isEmpty() ? "redirect:/" : "redirect:/?path=" + URLEncoder.encode(userObjectDTO.getPath(), "UTF-8");
     }
+
+    public String getRedirectURL(String path) throws UnsupportedEncodingException {
+        return path.isEmpty() ? "redirect:/" : "redirect:/?path=" + URLEncoder.encode(path, "UTF-8");
+    }
 }

@@ -30,16 +30,12 @@ public class UserStorageController extends BaseController {
         this.userObjectsService = userObjectsService;
     }
 
-//    @PostMapping("/upload/file")
-//    public String uploadFiles(@RequestParam(value = "path", required = false) String path,
-//                              @RequestParam("userObject") MultipartFile userObject) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-//        userObjectsService.uploadUserObject(getUserStorageName() + path, userObject);
-//        if (path.isEmpty()) {
-//            return "redirect:/";
-//        } else {
-//            return "redirect:/?path=" + path;
-//        }
-//    }
+    @PostMapping("/upload")
+    public String uploadFiles(@RequestParam(value = "path", required = false) String path,
+                              @RequestParam("userObject") MultipartFile[] userObjects) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.uploadUserObjects(getUserStorageName(), path, userObjects);
+        return getRedirectURL(path);
+    }
 
     @PostMapping("/create/folder")
     public String createFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
