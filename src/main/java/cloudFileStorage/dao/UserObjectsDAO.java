@@ -87,14 +87,6 @@ public class UserObjectsDAO {
                 .build());
     }
 
-    public void deleteUserObject(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        minioClient.removeObject(RemoveObjectArgs
-                .builder()
-                .bucket("user-files")
-                .object(path)
-                .build());
-    }
-
     public void deleteUserFolderWithContent(List<DeleteObject> objectsForDeleting) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         Iterable<Result<DeleteError>> results = minioClient.removeObjects(RemoveObjectsArgs
                 .builder()
@@ -105,5 +97,13 @@ public class UserObjectsDAO {
             DeleteError error = result.get();
             System.out.println("Error in deleting object " + error.objectName() + "; " + error.message());
         }
+    }
+
+    public void deleteUserObject(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        minioClient.removeObject(RemoveObjectArgs
+                .builder()
+                .bucket("user-files")
+                .object(path)
+                .build());
     }
 }

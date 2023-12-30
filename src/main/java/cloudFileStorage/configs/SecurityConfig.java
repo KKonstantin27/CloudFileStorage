@@ -53,6 +53,8 @@ public class SecurityConfig {
                 .logoutUrl("/signOut")
                 .logoutSuccessUrl("/"));
 
+        http.rememberMe(Customizer.withDefaults());
+
 //        http.csrf(AbstractHttpConfigurer::disable);
 
         return http.build();

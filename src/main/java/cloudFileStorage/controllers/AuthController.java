@@ -2,8 +2,8 @@ package cloudFileStorage.controllers;
 
 import cloudFileStorage.dto.UserDTO;
 import cloudFileStorage.models.User;
-import cloudFileStorage.services.UserObjectsService;
 import cloudFileStorage.services.UserDetailsService;
+import cloudFileStorage.services.UserObjectsService;
 import cloudFileStorage.utils.UsersMapper;
 import cloudFileStorage.utils.UsersValidator;
 import io.minio.errors.*;
