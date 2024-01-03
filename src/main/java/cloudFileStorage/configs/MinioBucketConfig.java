@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class MinioBucketConfig implements ApplicationListener<ContextRefreshedEvent> {
     private final BucketsService bucketsService;
-
     @Autowired
     public MinioBucketConfig(BucketsService bucketsService) {
         this.bucketsService = bucketsService;

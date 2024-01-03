@@ -9,11 +9,18 @@ import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
+import lombok.val;
+import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -31,8 +38,7 @@ public class UserObjectsService {
 
     public void createUserFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String path = userFolderDTO.getPath().isEmpty() ? "" : userFolderDTO.getPath();
-        String newUserFolderName = userStorageName + path + userFolderDTO.getShortName() + "/";
-        checkBusyUserObjectNames(userStorageName, path, userFolderDTO.getShortName());
+        String newUserFolderName = buildUniqueUserObjectName(userStorageName + path + userFolderDTO.getShortName(), userStorageName + path) + "/";
         userObjectsDAO.createUserFolder(newUserFolderName);
     }
 
@@ -99,14 +105,11 @@ public class UserObjectsService {
         return sortUserObjectDTOList(userFolderDTOList, userFileDTOList);
     }
 
-    public void downloadUserFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String outputPath = System.getProperty("user.home") + "/Downloads/" + userFolderDTO.getShortName();
-        String zipFile = outputPath + ".zip";
-        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName(), true);
-        try (FileOutputStream fos = new FileOutputStream(zipFile);
-             ZipOutputStream zos = new ZipOutputStream(fos)) {
-            for (Result<Item> userObject : userObjects) {
-                InputStream is = userObjectsDAO.downloadUserFolder(userObject.get().objectName());
+    public void downloadUserFolder(String userStorageName, UserFolderDTO userFolderDTO, ZipOutputStream zos) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName() + "/", true);
+        for (Result<Item> userObject : userObjects) {
+            try(InputStream is = userObjectsDAO.downloadUserFolder(userObject.get().objectName())) {
+                System.out.println(buildUserObjectNameWithoutStorageName(userObject.get().objectName()));
                 zos.putNextEntry(new ZipEntry(buildUserObjectNameWithoutStorageName(userObject.get().objectName())));
 
                 byte[] buffer = new byte[4096];
@@ -116,16 +119,14 @@ public class UserObjectsService {
                     zos.write(buffer, 0, bytesRead);
                 }
                 zos.closeEntry();
-                is.close();
             }
         }
     }
 
     public void renameUserFolder(String userStorageName, String oldShortUserFolderName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String oldUserFolderName = userStorageName + userFolderDTO.getPath() + oldShortUserFolderName + "/";
-        String newUserFolderName = userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName() + "/";
-        checkBusyUserObjectNames(userStorageName, userFolderDTO.getPath(), userFolderDTO.getShortName());
-        userObjectsDAO.copyUserObject(oldUserFolderName, newUserFolderName);
+        String newUserFolderName = buildUniqueUserObjectName(userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName(), userStorageName + userFolderDTO.getPath()) + "/";
+        userObjectsDAO.createUserFolder(newUserFolderName);
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(oldUserFolderName, true);
         for (Result<Item> userObject : userObjects) {
             String oldUserObjectName = userObject.get().objectName();
@@ -146,15 +147,15 @@ public class UserObjectsService {
         userObjectsDAO.deleteUserFolderWithContent(objectsForDeleting);
     }
 
-    public void downloadUserFile(String userStorageName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String outputPath = System.getProperty("user.home") + "/Downloads/" + userFileDTO.getShortName();
-        userObjectsDAO.downloadUserFile(userStorageName + userFileDTO.getPath() + userFileDTO.getShortName(), outputPath);
+    public void downloadUserFile(String userStorageName, UserFileDTO userFileDTO, OutputStream os) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        try(InputStream is = userObjectsDAO.downloadUserFolder(userStorageName + userFileDTO.getPath() + userFileDTO.getShortName())) {
+            FileCopyUtils.copy(is, os);
+        }
     }
 
     public void renameUserFile(String userStorageName, String oldShortUserFileName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String oldUserFileName = userStorageName + userFileDTO.getPath() + oldShortUserFileName;
-        String newUserFileName = userStorageName + userFileDTO.getPath() + userFileDTO.getShortName();
-        checkBusyUserObjectNames(userStorageName, userFileDTO.getPath(), userFileDTO.getShortName());
+        String newUserFileName = buildUniqueUserObjectName(userStorageName + userFileDTO.getPath() + userFileDTO.getShortName(), userStorageName + userFileDTO.getPath());
         userObjectsDAO.copyUserObject(oldUserFileName, newUserFileName);
         userObjectsDAO.deleteUserObject(oldUserFileName);
     }
@@ -220,16 +221,32 @@ public class UserObjectsService {
         return userObjectDTOList;
     }
 
-    private void checkBusyUserObjectNames(String userStorageName, String path, String newUserObjectName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + path, false);
+    private boolean isUserObjectNameBusy(String userObjectName, String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(path, false);
         for (Result<Item> userObject : userObjects) {
-            if (getShortUserObjectName(userObject.get().objectName()).equals(newUserObjectName)) {
-                throw new NameIsAlreadyTakenException("This name is already taken");
+            if (getShortUserObjectName(userObject.get().objectName()).equals(getShortUserObjectName(userObjectName))) {
+                return true;
             }
         }
+        return false;
+    }
+
+    public String buildUniqueUserObjectName(String userObjectName, String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        StringBuilder userObjectNameSB = new StringBuilder(userObjectName);
+        int currentUniqueNum = 0;
+        while (isUserObjectNameBusy(userObjectNameSB.toString(), path)) {
+            if (currentUniqueNum == 0) {
+                userObjectNameSB.append(" (").append(currentUniqueNum + 1).append(")");
+            } else {
+                userObjectNameSB.replace(userObjectNameSB.length() - 2, userObjectNameSB.length() - 1, currentUniqueNum + 1 + "");
+            }
+            currentUniqueNum++;
+        }
+        return userObjectNameSB.toString();
     }
 
     private boolean isDir(String userObjectName) {
         return userObjectName.endsWith("/");
     }
+
 }

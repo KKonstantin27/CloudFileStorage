@@ -38,7 +38,7 @@ public class UserObjectsDAO {
                 .build());
     }
 
-    public void uploadUserObject(String path, MultipartFile userFile) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public boolean uploadUserObject(String path, MultipartFile userFile) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.putObject(PutObjectArgs
                 .builder()
                 .bucket("user-files")
@@ -46,6 +46,7 @@ public class UserObjectsDAO {
                 .stream(userFile.getInputStream(), userFile.getSize(), -1)
                 .contentType(userFile.getContentType())
                 .build());
+        return true;
     }
 
     public Iterable<Result<Item>> getUserObjects(String path, boolean isRecursive) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {

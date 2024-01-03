@@ -1,8 +1,6 @@
 package cloudFileStorage.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
@@ -17,12 +15,9 @@ public class User implements Serializable {
     private int id;
 
     @Column(name = "username", unique = true, nullable = false)
-//    @NotEmpty(message = "Имя пользователя не может быть пустым")
-//    @Size(min = 4, max = 20, message = "Длина имени пользователя должна быть от 4 до 20 символов")
     private String username;
 
     @Column(name = "password", nullable = false)
-//    @Size(min = 8, max = 20, message = "Длина пароля должна быть от 8 до 20 символов")
     private String password;
 
     @Column(name = "role")
@@ -34,7 +29,6 @@ public class User implements Serializable {
     }
 
     public User() {
-
     }
 
     public int getId() {

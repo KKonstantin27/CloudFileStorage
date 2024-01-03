@@ -5,16 +5,24 @@ import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
 import cloudFileStorage.services.UserObjectsService;
 import io.minio.errors.*;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Controller
 public class UserStorageController extends BaseController {
@@ -47,9 +55,13 @@ public class UserStorageController extends BaseController {
     }
 
     @PostMapping("/download/folder")
-    public String downloadUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.downloadUserFolder(getUserStorageName(), userFolderDTO);
-        return getRedirectURL(userFolderDTO);
+    public void downloadUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO, HttpServletResponse response) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        response.setHeader("Content-Disposition", "attachment; filename=" + userFolderDTO.getShortName() + ".zip");
+        response.setStatus(HttpServletResponse.SC_OK);
+        try (OutputStream os = response.getOutputStream();
+             ZipOutputStream zos = new ZipOutputStream(os)) {
+            userObjectsService.downloadUserFolder(getUserStorageName(), userFolderDTO, zos);
+        }
     }
 
     @PatchMapping("/rename/folder")
@@ -66,9 +78,13 @@ public class UserStorageController extends BaseController {
     }
 
     @PostMapping("/download/file")
-    public String downloadUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.downloadUserFile(getUserStorageName(), userFileDTO);
-        return getRedirectURL(userFileDTO);
+    public void downloadUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO, HttpServletResponse response) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(userFileDTO.getShortName(), "UTF-8").replace("+", "%20"));
+        System.out.println(userFileDTO.getShortName());
+        response.setStatus(HttpServletResponse.SC_OK);
+        try(OutputStream os = response.getOutputStream()) {
+            userObjectsService.downloadUserFile(getUserStorageName(), userFileDTO, os);
+        }
     }
 
     @PatchMapping("/rename/file")
