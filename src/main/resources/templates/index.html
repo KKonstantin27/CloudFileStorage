@@ -46,8 +46,9 @@
                 <ul class="dropdown-menu">
                     <li class="w-100">
                         <form th:method="POST" th:action="@{/create/folder}" th:object="${userFolderDTO}">
-                            <input type="text" th:name="shortName" placeholder="Folder's name">
+                            <input type="text" th:name="shortName" th:field="*{shortName}" placeholder="Folder's name">
                             <input type="text" th:name="path" hidden th:value="${param.get('path')}">
+<!--                            <div class="text-danger" th:if="${#fields.hasErrors('shortName')}" th:errors="*{shortName}"></div>-->
                             <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Submit</button>
                         </form>
                     </li>
@@ -58,14 +59,14 @@
                     <button type="button" class="btn light-button w-100 p-1" data-bs-toggle="dropdown">Upload</button>
                     <ul class="dropdown-menu">
                         <li class="w-100">
-                            <form method="POST" enctype="multipart/form-data" th:action="@{/upload}">
+                            <form method="POST" enctype="multipart/form-data" th:action="@{/upload/files}">
                                 <input type="text" name="path" hidden th:value="${param.get('path')}">
                                 <input id="upload-file" type="file" name="userObject" multiple hidden onchange="this.form.submit()">
-                                <label for="upload-file" class="btn dropdown-button w-100">Upload file</label>
+                                <label for="upload-file" class="btn dropdown-button w-100">Upload files</label>
                             </form>
                         </li>
                         <li class="w-100">
-                            <form method="POST" enctype="multipart/form-data" th:action="@{/upload}">
+                            <form method="POST" enctype="multipart/form-data" th:action="@{/upload/folder}">
                                 <input type="text" name="path" hidden th:value="${param.get('path')}">
                                 <input id="upload-folder" type="file" name="userObject" webkitdirectory hidden onchange="this.form.submit()">
                                 <label for="upload-folder" class="btn dropdown-button w-100">Upload folder</label>

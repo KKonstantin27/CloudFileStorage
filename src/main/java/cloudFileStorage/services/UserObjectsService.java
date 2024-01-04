@@ -9,12 +9,15 @@ import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
+import jakarta.validation.Valid;
 import lombok.val;
 import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.RequestContext;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
@@ -23,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -42,9 +46,29 @@ public class UserObjectsService {
         userObjectsDAO.createUserFolder(newUserFolderName);
     }
 
-    public void uploadUserObjects(String userStorageName, String path, MultipartFile[] userObjects) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void uploadUserFolder(String userStorageName, String path, MultipartFile[] userObjects) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        Path userRootFolderName = Path.of(Arrays.stream(userObjects).findAny().get().getOriginalFilename()).getName(0);
+        String uploadUserRootFolderName = buildUniqueUserObjectName(
+                userStorageName + path + userRootFolderName,
+                userStorageName + path) + "/";
+        userObjectsDAO.createUserFolder(uploadUserRootFolderName);
         for (MultipartFile userObject : userObjects) {
-            userObjectsDAO.uploadUserObject(userStorageName + path, userObject);
+            Path uploadFileName = Path.of(userObject.getOriginalFilename());
+            Path uploadFilePath = Path.of(userObject.getOriginalFilename()).getParent();
+            StringBuilder uploadFilePathSB = new StringBuilder();
+            if (uploadFileName.getNameCount() > 2) {
+                for (Path shortUserFolderName : userRootFolderName.relativize(uploadFilePath)) {
+                    userObjectsDAO.createUserFolder(uploadUserRootFolderName + uploadFilePathSB.append(shortUserFolderName).append("/"));
+                }
+            }
+            userObjectsDAO.uploadUserObject(uploadUserRootFolderName + uploadFilePathSB + uploadFileName.getFileName().toString(), userObject);
+        }
+    }
+
+    public void uploadUserFiles(String userStorageName, String path, MultipartFile[] userFiles) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        for (MultipartFile userFile : userFiles) {
+            String userFileName = buildUniqueUserObjectName(userFile.getOriginalFilename(), userStorageName + path);
+            userObjectsDAO.uploadUserObject(userStorageName + path + userFileName, userFile);
         }
     }
 
@@ -108,7 +132,7 @@ public class UserObjectsService {
     public void downloadUserFolder(String userStorageName, UserFolderDTO userFolderDTO, ZipOutputStream zos) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName() + "/", true);
         for (Result<Item> userObject : userObjects) {
-            try(InputStream is = userObjectsDAO.downloadUserFolder(userObject.get().objectName())) {
+            try(InputStream is = userObjectsDAO.downloadUserObject(userObject.get().objectName())) {
                 System.out.println(buildUserObjectNameWithoutStorageName(userObject.get().objectName()));
                 zos.putNextEntry(new ZipEntry(buildUserObjectNameWithoutStorageName(userObject.get().objectName())));
 
@@ -148,7 +172,7 @@ public class UserObjectsService {
     }
 
     public void downloadUserFile(String userStorageName, UserFileDTO userFileDTO, OutputStream os) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        try(InputStream is = userObjectsDAO.downloadUserFolder(userStorageName + userFileDTO.getPath() + userFileDTO.getShortName())) {
+        try(InputStream is = userObjectsDAO.downloadUserObject(userStorageName + userFileDTO.getPath() + userFileDTO.getShortName())) {
             FileCopyUtils.copy(is, os);
         }
     }

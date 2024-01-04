@@ -1,7 +1,5 @@
 package cloudFileStorage.dao;
 
-import cloudFileStorage.dto.UserFileDTO;
-import cloudFileStorage.dto.UserObjectDTO;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.DeleteError;
@@ -11,13 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -34,15 +30,15 @@ public class UserObjectsDAO {
                 .builder()
                 .bucket("user-files")
                 .object(newUserFolderName)
-                .stream(new ByteArrayInputStream(new byte[] {}), 0, -1)
+                .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
                 .build());
     }
 
-    public boolean uploadUserObject(String path, MultipartFile userFile) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public boolean uploadUserObject(String userObjectName, MultipartFile userFile) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.putObject(PutObjectArgs
                 .builder()
                 .bucket("user-files")
-                .object(path + userFile.getOriginalFilename())
+                .object(userObjectName)
                 .stream(userFile.getInputStream(), userFile.getSize(), -1)
                 .contentType(userFile.getContentType())
                 .build());
@@ -71,20 +67,11 @@ public class UserObjectsDAO {
                 .build());
     }
 
-    public InputStream downloadUserFolder(String UserFileName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public InputStream downloadUserObject(String UserFileObject) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         return minioClient.getObject(GetObjectArgs
                 .builder()
                 .bucket("user-files")
-                .object(UserFileName)
-                .build());
-    }
-
-    public void downloadUserFile(String userFileName, String outputPath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        minioClient.downloadObject(DownloadObjectArgs
-                .builder()
-                .bucket("user-files")
-                .object(userFileName)
-                .filename(outputPath)
+                .object(UserFileObject)
                 .build());
     }
 

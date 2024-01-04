@@ -6,10 +6,12 @@ import cloudFileStorage.dto.UserObjectDTO;
 import cloudFileStorage.services.UserObjectsService;
 import io.minio.errors.*;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,15 +44,30 @@ public class UserStorageController extends BaseController {
     }
 
     @PostMapping("/create/folder")
-    public String createFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public String createFolder(@ModelAttribute("userFolderDTO") @Valid UserFolderDTO userFolderDTO, BindingResult bindingResult, Model model) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
+        if (bindingResult.hasErrors()) {
+            System.out.println(bindingResult.getFieldError());
+            model.addAttribute("errorList", bindingResult.getAllErrors());
+            return getRedirectURL(userFolderDTO);
+        }
+
+        System.out.println(bindingResult.hasErrors());
         userObjectsService.createUserFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/upload/files")
     public String uploadFiles(@RequestParam(value = "path", required = false) String path,
                               @RequestParam("userObject") MultipartFile[] userObjects) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.uploadUserObjects(getUserStorageName(), path, userObjects);
+        userObjectsService.uploadUserFiles(getUserStorageName(), path, userObjects);
+        return getRedirectURL(path);
+    }
+
+    @PostMapping("/upload/folder")
+    public String uploadFolder(@RequestParam(value = "path", required = false) String path,
+                              @RequestParam("userObject") MultipartFile[] userObjects) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        userObjectsService.uploadUserFolder(getUserStorageName(), path, userObjects);
         return getRedirectURL(path);
     }
 
