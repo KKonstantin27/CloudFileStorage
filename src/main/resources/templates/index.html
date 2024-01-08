@@ -34,6 +34,12 @@
             </div>
         </div>
 
+        <div class="mb-3" th:if="${errors} != null">
+            <ul class="mb-0 justify-content-center d-flex" th:each="error : ${errors}">
+                <li class="text-danger" th:text="${error}"></li>
+            </ul>
+        </div>
+
         <div class="justify-content-center d-flex">
             <div class="breadcrumbs-area col-6">
             <span th:each="entry : ${breadcrumbs}">
@@ -48,7 +54,6 @@
                         <form th:method="POST" th:action="@{/create/folder}" th:object="${userFolderDTO}">
                             <input type="text" th:name="shortName" th:field="*{shortName}" placeholder="Folder's name">
                             <input type="text" th:name="path" hidden th:value="${param.get('path')}">
-<!--                            <div class="text-danger" th:if="${#fields.hasErrors('shortName')}" th:errors="*{shortName}"></div>-->
                             <button type="button" class="btn dropdown-button w-100 p-1" onclick="this.form.submit()">Submit</button>
                         </form>
                     </li>

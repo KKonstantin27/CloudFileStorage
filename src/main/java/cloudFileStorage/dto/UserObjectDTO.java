@@ -16,8 +16,8 @@ import lombok.Setter;
 public class UserObjectDTO {
     private String name;
     @NotEmpty(message = "Name should not be empty")
-    @Size(min = 4, max = 30, message = "Name should be between 1 and 20 characters")
-//    @Pattern(regexp = "^(?!.*\\s)[a-zA-Z\\d._-]*$", message = "Username contains invalid characters")
+    @Size(min = 1, max = 30, message = "Name should be between 1 and 20 characters")
+    @Pattern(regexp = "[^\\\\/:*?\"<>|+\\x00-\\x1F\\x20.]+", message = "Name contains invalid characters")
     private String shortName;
     private String size;
     private String userStorageName;

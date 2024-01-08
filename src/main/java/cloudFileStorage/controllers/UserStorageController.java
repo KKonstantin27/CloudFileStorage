@@ -10,20 +10,17 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Controller
@@ -44,15 +41,14 @@ public class UserStorageController extends BaseController {
     }
 
     @PostMapping("/create/folder")
-    public String createFolder(@ModelAttribute("userFolderDTO") @Valid UserFolderDTO userFolderDTO, BindingResult bindingResult, Model model) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public String createFolder(@ModelAttribute("userFolderDTO") @Valid UserFolderDTO userFolderDTO,
+                               BindingResult bindingResult, RedirectAttributes redirectAttributes) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
 
         if (bindingResult.hasErrors()) {
-            System.out.println(bindingResult.getFieldError());
-            model.addAttribute("errorList", bindingResult.getAllErrors());
+            setErrorsRedirectAttribute(bindingResult, redirectAttributes);
             return getRedirectURL(userFolderDTO);
         }
 
-        System.out.println(bindingResult.hasErrors());
         userObjectsService.createUserFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);
     }
@@ -66,7 +62,7 @@ public class UserStorageController extends BaseController {
 
     @PostMapping("/upload/folder")
     public String uploadFolder(@RequestParam(value = "path", required = false) String path,
-                              @RequestParam("userObject") MultipartFile[] userObjects) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+                               @RequestParam("userObject") MultipartFile[] userObjects) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         userObjectsService.uploadUserFolder(getUserStorageName(), path, userObjects);
         return getRedirectURL(path);
     }
@@ -82,8 +78,13 @@ public class UserStorageController extends BaseController {
     }
 
     @PatchMapping("/rename/folder")
-    public String renameUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO,
-                                   @RequestParam("oldShortUserFolderName") String oldShortUserFolderName) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public String renameUserFolder(@ModelAttribute("userFolderDTO") @Valid UserFolderDTO userFolderDTO, BindingResult bindingResult,
+                                   @RequestParam("oldShortUserFolderName") String oldShortUserFolderName,
+                                   RedirectAttributes redirectAttributes) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        if (bindingResult.hasErrors()) {
+            setErrorsRedirectAttribute(bindingResult, redirectAttributes);
+            return getRedirectURL(userFolderDTO);
+        }
         userObjectsService.renameUserFolder(getUserStorageName(), oldShortUserFolderName, userFolderDTO);
         return getRedirectURL(userFolderDTO);
     }
@@ -99,14 +100,20 @@ public class UserStorageController extends BaseController {
         response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(userFileDTO.getShortName(), "UTF-8").replace("+", "%20"));
         System.out.println(userFileDTO.getShortName());
         response.setStatus(HttpServletResponse.SC_OK);
-        try(OutputStream os = response.getOutputStream()) {
+        try (OutputStream os = response.getOutputStream()) {
             userObjectsService.downloadUserFile(getUserStorageName(), userFileDTO, os);
         }
     }
 
     @PatchMapping("/rename/file")
-    public String renameUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO,
-                                 @RequestParam("oldShortUserFileName") String oldShortUserFileName) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public String renameUserFile(@ModelAttribute("userFileDTO") @Valid UserFileDTO userFileDTO, BindingResult bindingResult,
+                                 @RequestParam("oldShortUserFileName") String oldShortUserFileName,
+                                 RedirectAttributes redirectAttributes) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        if (bindingResult.hasErrors()) {
+            setErrorsRedirectAttribute(bindingResult, redirectAttributes);
+            return getRedirectURL(userFileDTO);
+        }
+
         userObjectsService.renameUserFile(getUserStorageName(), oldShortUserFileName, userFileDTO);
         return getRedirectURL(userFileDTO);
     }
