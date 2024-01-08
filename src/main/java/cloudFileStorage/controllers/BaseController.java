@@ -30,7 +30,7 @@ public class BaseController {
     public String getRedirectURL(String path) throws UnsupportedEncodingException {
         return path.isEmpty() ? "redirect:/" : "redirect:/?path=" + URLEncoder.encode(path, "UTF-8");
     }
-    public void setErrorsRedirectAttribute(BindingResult bindingResult, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
+    public void setErrorsRedirectAttribute(BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         List<String> errors = new ArrayList<>();
         for (FieldError fieldError : bindingResult.getFieldErrors()) {
             errors.add(fieldError.getDefaultMessage());

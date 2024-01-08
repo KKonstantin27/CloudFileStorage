@@ -3,6 +3,7 @@ package cloudFileStorage.controllers;
 import cloudFileStorage.dto.UserFileDTO;
 import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
+import cloudFileStorage.exceptions.StorageException;
 import cloudFileStorage.security.UserDetails;
 import cloudFileStorage.services.UserObjectsService;
 import io.minio.errors.*;
@@ -46,7 +47,7 @@ public class IndexPageController extends BaseController {
     public String getIndexPage(@RequestParam(value = "path", required = false) String path,
                                @ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO,
                                @ModelAttribute("userFileDTO") UserFileDTO userFileDTO,
-                               Model model) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+                               Model model) throws StorageException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof AnonymousAuthenticationToken) {

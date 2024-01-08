@@ -1,12 +1,12 @@
 package cloudFileStorage.controllers;
 
 import cloudFileStorage.dto.UserDTO;
+import cloudFileStorage.exceptions.StorageException;
 import cloudFileStorage.models.User;
 import cloudFileStorage.services.UserDetailsService;
 import cloudFileStorage.services.UserObjectsService;
 import cloudFileStorage.utils.UsersMapper;
 import cloudFileStorage.utils.UsersValidator;
-import io.minio.errors.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,10 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 @Controller
 @RequestMapping("/auth")
@@ -48,7 +44,7 @@ public class AuthController extends BaseController {
     }
 
     @PostMapping("/signUp")
-    public String signUp(@ModelAttribute("userDTO") @Valid UserDTO userDTO, BindingResult bindingResult) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public String signUp(@ModelAttribute("userDTO") @Valid UserDTO userDTO, BindingResult bindingResult) throws StorageException {
         usersValidator.validate(userDTO, bindingResult);
         if (bindingResult.hasErrors()) {
             return "auth/signUp";

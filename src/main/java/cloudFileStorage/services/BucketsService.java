@@ -1,8 +1,9 @@
 package cloudFileStorage.services;
 
+import cloudFileStorage.dao.UserBucketsDAO;
+import cloudFileStorage.exceptions.StorageException;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
 import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,24 +14,18 @@ import java.security.NoSuchAlgorithmException;
 
 @Service
 public class BucketsService {
-    private final MinioClient minioClient;
+    private final UserBucketsDAO userBucketsDAO;
 
     @Autowired
-    public BucketsService(MinioClient minioClient) {
-        this.minioClient = minioClient;
+    public BucketsService(UserBucketsDAO userBucketsDAO) {
+        this.userBucketsDAO = userBucketsDAO;
     }
 
-    public void createBucket(String bucketName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        minioClient.makeBucket(MakeBucketArgs
-                .builder()
-                .bucket(bucketName)
-                .build());
+    public void createBucket(String bucketName) throws StorageException {
+        userBucketsDAO.createBucket(bucketName);
     }
 
-    public boolean isBucketExists(String bucketName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        return minioClient.bucketExists(BucketExistsArgs
-                .builder()
-                .bucket(bucketName)
-                .build());
+    public boolean isBucketExists(String bucketName) throws StorageException {
+        return userBucketsDAO.isBucketExists(bucketName);
     }
 }
