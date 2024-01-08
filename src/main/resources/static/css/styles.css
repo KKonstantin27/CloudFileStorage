@@ -96,8 +96,12 @@ i {
     border-color: #454545;
 }
 
-a:hover {
+a {
     color: #696969;
+}
+
+a:hover {
+    color: #454545;
 }
 
 a:visited {

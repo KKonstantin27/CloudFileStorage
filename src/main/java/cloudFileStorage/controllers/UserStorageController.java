@@ -90,7 +90,7 @@ public class UserStorageController extends BaseController {
         return getRedirectURL(userFolderDTO);
     }
 
-    @DeleteMapping(value = "delete/folder")
+    @DeleteMapping(value = "/delete/folder")
     public String deleteUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws StorageException, UnsupportedEncodingException {
         userObjectsService.deleteUserFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);

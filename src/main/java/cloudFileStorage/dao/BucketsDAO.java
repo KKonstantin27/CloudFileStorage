@@ -13,11 +13,11 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @Component
-public class UserBucketsDAO {
+public class BucketsDAO {
     private final MinioClient minioClient;
 
     @Autowired
-    public UserBucketsDAO(MinioClient minioClient) {
+    public BucketsDAO(MinioClient minioClient) {
         this.minioClient = minioClient;
     }
 
