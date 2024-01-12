@@ -5,6 +5,7 @@ import cloudFileStorage.dto.UserFileDTO;
 import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
 import cloudFileStorage.exceptions.StorageException;
+import cloudFileStorage.utils.UserObjectsUtil;
 import io.minio.Result;
 import io.minio.errors.*;
 import io.minio.messages.DeleteObject;
@@ -27,24 +28,30 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class UserObjectsService {
     private final UserObjectsDAO userObjectsDAO;
-    private final static String folderDelimiter = "/";
+    private final UserObjectsUtil userObjectsUtil;
+    private final static String FOLDER_DELIMITER = "/";
 
     @Autowired
-    public UserObjectsService(UserObjectsDAO userObjectsDAO) {
+    public UserObjectsService(UserObjectsDAO userObjectsDAO, UserObjectsUtil userObjectsUtil) {
         this.userObjectsDAO = userObjectsDAO;
+        this.userObjectsUtil = userObjectsUtil;
+    }
+
+    public void createUserStorage(String userStorageName) throws StorageException {
+        userObjectsDAO.createUserFolder(userStorageName + FOLDER_DELIMITER);
     }
 
     public void createUserFolder(String userStorageName, UserFolderDTO userFolderDTO) throws StorageException {
         String path = userFolderDTO.getPath().isEmpty() ? "" : userFolderDTO.getPath();
-        String newUserFolderName = buildUniqueUserObjectName(userStorageName + path + userFolderDTO.getShortName(), userStorageName + path) + folderDelimiter;
+        String newUserFolderName = userObjectsUtil.buildUniqueUserObjectName(userStorageName + path + userFolderDTO.getShortName(), userStorageName + path) + FOLDER_DELIMITER;
         userObjectsDAO.createUserFolder(newUserFolderName);
     }
 
     public void uploadUserFolder(String userStorageName, String path, MultipartFile[] userObjects) throws StorageException {
         Path userRootFolderName = Path.of(Arrays.stream(userObjects).findAny().get().getOriginalFilename()).getName(0);
-        String uploadUserRootFolderName = buildUniqueUserObjectName(
+        String uploadUserRootFolderName = userObjectsUtil.buildUniqueUserObjectName(
                 userStorageName + path + userRootFolderName,
-                userStorageName + path) + folderDelimiter;
+                userStorageName + path) + FOLDER_DELIMITER;
         userObjectsDAO.createUserFolder(uploadUserRootFolderName);
         for (MultipartFile userObject : userObjects) {
             Path uploadFileName = Path.of(userObject.getOriginalFilename());
@@ -52,7 +59,7 @@ public class UserObjectsService {
             StringBuilder uploadFilePathSB = new StringBuilder();
             if (uploadFileName.getNameCount() > 2) {
                 for (Path shortUserFolderName : userRootFolderName.relativize(uploadFilePath)) {
-                    userObjectsDAO.createUserFolder(uploadUserRootFolderName + uploadFilePathSB.append(shortUserFolderName).append(folderDelimiter));
+                    userObjectsDAO.createUserFolder(uploadUserRootFolderName + uploadFilePathSB.append(shortUserFolderName).append(FOLDER_DELIMITER));
                 }
             }
             userObjectsDAO.uploadUserObject(uploadUserRootFolderName + uploadFilePathSB + uploadFileName.getFileName().toString(), userObject);
@@ -61,7 +68,7 @@ public class UserObjectsService {
 
     public void uploadUserFiles(String userStorageName, String path, MultipartFile[] userFiles) throws StorageException {
         for (MultipartFile userFile : userFiles) {
-            String userFileName = buildUniqueUserObjectName(userFile.getOriginalFilename(), userStorageName + path);
+            String userFileName = userObjectsUtil.buildUniqueUserObjectName(userFile.getOriginalFilename(), userStorageName + path);
             userObjectsDAO.uploadUserObject(userStorageName + path + userFileName, userFile);
         }
     }
@@ -73,9 +80,9 @@ public class UserObjectsService {
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + path, false);
         try {
             for (Result<Item> userObject : userObjects) {
-                String shortUserObjectName = getShortUserObjectName(userObject.get().objectName());
-                String userObjectName = buildUserObjectNameWithoutStorageName(userObject.get().objectName());
-                String userObjectPath = buildUserObjectPathWithoutStorageName(userObject.get().objectName());
+                String shortUserObjectName = userObjectsUtil.getShortUserObjectName(userObject.get().objectName());
+                String userObjectName = userObjectsUtil.buildUserObjectNameWithoutStorageName(userObject.get().objectName());
+                String userObjectPath = userObjectsUtil.buildUserObjectPathWithoutStorageName(userObject.get().objectName());
                 if (userObject.get().isDir()) {
                     userFolderDTOList.add(new UserFolderDTO(
                             userObjectName,
@@ -91,7 +98,7 @@ public class UserObjectsService {
                             userObjectPath));
                 }
             }
-            return sortUserObjectDTOList(userFolderDTOList, userFileDTOList);
+            return userObjectsUtil.sortUserObjectDTOList(userFolderDTOList, userFileDTOList);
         } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
                  NoSuchAlgorithmException | InvalidKeyException | InvalidResponseException | XmlParserException |
                  InternalException e) {
@@ -105,17 +112,17 @@ public class UserObjectsService {
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName, true);
         try {
             for (Result<Item> userObject : userObjects) {
-                String userObjectName = buildUserObjectNameWithoutStorageName(userObject.get().objectName());
-                String shortUserObjectName = getShortUserObjectName(userObject.get().objectName());
-                String userObjectPath = buildUserObjectPathWithoutStorageName(userObject.get().objectName());
-                if (searchQuery.equals(shortUserObjectName) && isDir(userObjectName)) {
+                String userObjectName = userObjectsUtil.buildUserObjectNameWithoutStorageName(userObject.get().objectName());
+                String shortUserObjectName = userObjectsUtil.getShortUserObjectName(userObject.get().objectName());
+                String userObjectPath = userObjectsUtil.buildUserObjectPathWithoutStorageName(userObject.get().objectName());
+                if (searchQuery.equals(shortUserObjectName) && userObjectsUtil.isDir(userObjectName)) {
                     userFolderDTOList.add(new UserFolderDTO(
                             userObjectName,
                             shortUserObjectName,
                             userStorageName,
                             userObjectPath));
                 }
-                if (searchQuery.equals(shortUserObjectName) && !isDir(userObject.get().objectName())) {
+                if (searchQuery.equals(shortUserObjectName) && !userObjectsUtil.isDir(userObject.get().objectName())) {
                     userFileDTOList.add(new UserFileDTO(
                             userObjectName,
                             shortUserObjectName,
@@ -124,7 +131,7 @@ public class UserObjectsService {
                             userObjectPath));
                 }
             }
-            return sortUserObjectDTOList(userFolderDTOList, userFileDTOList);
+            return userObjectsUtil.sortUserObjectDTOList(userFolderDTOList, userFileDTOList);
         } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
                  NoSuchAlgorithmException | InvalidKeyException | InvalidResponseException | XmlParserException |
                  InternalException e) {
@@ -133,10 +140,10 @@ public class UserObjectsService {
     }
 
     public void downloadUserFolder(String userStorageName, UserFolderDTO userFolderDTO, ZipOutputStream zos) throws StorageException {
-        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName() + folderDelimiter, true);
+        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName() + FOLDER_DELIMITER, true);
         for (Result<Item> userObject : userObjects) {
             try (InputStream is = userObjectsDAO.downloadUserObject(userObject.get().objectName())) {
-                zos.putNextEntry(new ZipEntry(buildUserObjectNameWithoutStorageName(userObject.get().objectName())));
+                zos.putNextEntry(new ZipEntry(userObjectsUtil.buildUserObjectNameWithoutStorageName(userObject.get().objectName())));
 
                 byte[] buffer = new byte[4096];
                 int bytesRead;
@@ -154,8 +161,8 @@ public class UserObjectsService {
     }
 
     public void renameUserFolder(String userStorageName, String oldShortUserFolderName, UserFolderDTO userFolderDTO) throws StorageException {
-        String oldUserFolderName = userStorageName + userFolderDTO.getPath() + oldShortUserFolderName + folderDelimiter;
-        String newUserFolderName = buildUniqueUserObjectName(userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName(), userStorageName + userFolderDTO.getPath()) + folderDelimiter;
+        String oldUserFolderName = userStorageName + userFolderDTO.getPath() + oldShortUserFolderName + FOLDER_DELIMITER;
+        String newUserFolderName = userObjectsUtil.buildUniqueUserObjectName(userStorageName + userFolderDTO.getPath() + userFolderDTO.getShortName(), userStorageName + userFolderDTO.getPath()) + FOLDER_DELIMITER;
         userObjectsDAO.createUserFolder(newUserFolderName);
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(oldUserFolderName, true);
         try {
@@ -199,7 +206,7 @@ public class UserObjectsService {
 
     public void renameUserFile(String userStorageName, String oldShortUserFileName, UserFileDTO userFileDTO) throws StorageException {
         String oldUserFileName = userStorageName + userFileDTO.getPath() + oldShortUserFileName;
-        String newUserFileName = buildUniqueUserObjectName(userStorageName + userFileDTO.getPath() + userFileDTO.getShortName(), userStorageName + userFileDTO.getPath());
+        String newUserFileName = userObjectsUtil.buildUniqueUserObjectName(userStorageName + userFileDTO.getPath() + userFileDTO.getShortName(), userStorageName + userFileDTO.getPath());
         userObjectsDAO.copyUserObject(oldUserFileName, newUserFileName);
         userObjectsDAO.deleteUserObject(oldUserFileName);
     }
@@ -208,95 +215,12 @@ public class UserObjectsService {
         userObjectsDAO.deleteUserObject(userStorageName + userFileDTO.getName());
     }
 
-    public Map<String, String> buildBreadcrumbs(String userStorageName, String path) {
-        Map<String, String> breadcrumbs = new LinkedHashMap<>();
-        breadcrumbs.put("", userStorageName);
 
-        if (path == null) {
-            return breadcrumbs;
-        }
 
-        String[] pathArr = path.split(folderDelimiter);
-        StringBuilder currentPath = new StringBuilder();
-        for (String fragmentOfPath : pathArr) {
-            breadcrumbs.put((currentPath.append(fragmentOfPath).append(folderDelimiter)).toString(), fragmentOfPath + folderDelimiter);
-        }
-        return breadcrumbs;
-    }
 
-    public void createUserStorage(String userStorageName) throws StorageException {
-        userObjectsDAO.createUserFolder(userStorageName + folderDelimiter);
-    }
 
-    private String getShortUserObjectName(String userObjectName) {
-        String[] userObjectNameArr = userObjectName.split(folderDelimiter);
-        return userObjectNameArr[userObjectNameArr.length - 1];
-    }
 
-    private String buildUserObjectNameWithoutStorageName(String userObjectName) {
-        String[] userObjectNameArr = userObjectName.split(folderDelimiter);
-        StringBuilder userObjectNameWithoutStorageName = new StringBuilder();
-        for (int i = 1; i < userObjectNameArr.length; i++) {
-            if (i == userObjectNameArr.length - 1 && !isDir(userObjectName)) {
-                userObjectNameWithoutStorageName.append(userObjectNameArr[i]);
-            } else {
-                userObjectNameWithoutStorageName.append(userObjectNameArr[i]).append(folderDelimiter);
-            }
-        }
-        return userObjectNameWithoutStorageName.toString();
-    }
 
-    private String buildUserObjectPathWithoutStorageName(String userObjectName) {
-        String[] userObjectNameArr = userObjectName.split(folderDelimiter);
-        StringBuilder userObjectPath = new StringBuilder();
-        for (int i = 1; i < userObjectNameArr.length - 1; i++) {
-            userObjectPath.append(userObjectNameArr[i]).append(folderDelimiter);
-        }
-        return userObjectPath.toString();
-    }
 
-    private List<UserObjectDTO> sortUserObjectDTOList(List<UserFolderDTO> userFolderDTOList, List<UserFileDTO> userFileDTOList) {
-        Comparator<UserObjectDTO> userObjectDTOComparator = Comparator.comparing(UserObjectDTO::getName);
-        Collections.sort(userFolderDTOList, userObjectDTOComparator);
-        Collections.sort(userFileDTOList, userObjectDTOComparator);
-        List<UserObjectDTO> userObjectDTOList = new ArrayList<>();
-        userObjectDTOList.addAll(userFolderDTOList);
-        userObjectDTOList.addAll(userFileDTOList);
-        return userObjectDTOList;
-    }
-
-    private boolean isUserObjectNameBusy(String userObjectName, String path) throws StorageException {
-        Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(path, false);
-        try {
-            for (Result<Item> userObject : userObjects) {
-                if (getShortUserObjectName(userObject.get().objectName()).equals(getShortUserObjectName(userObjectName))) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
-                 NoSuchAlgorithmException | InvalidKeyException | InvalidResponseException | XmlParserException |
-                 InternalException e) {
-            throw new StorageException();
-        }
-    }
-
-    public String buildUniqueUserObjectName(String userObjectName, String path) throws StorageException {
-        StringBuilder userObjectNameSB = new StringBuilder(userObjectName);
-        int currentUniqueNum = 0;
-        while (isUserObjectNameBusy(userObjectNameSB.toString(), path)) {
-            if (currentUniqueNum == 0) {
-                userObjectNameSB.append(" (").append(currentUniqueNum + 1).append(")");
-            } else {
-                userObjectNameSB.replace(userObjectNameSB.length() - 2, userObjectNameSB.length() - 1, currentUniqueNum + 1 + "");
-            }
-            currentUniqueNum++;
-        }
-        return userObjectNameSB.toString();
-    }
-
-    private boolean isDir(String userObjectName) {
-        return userObjectName.endsWith(folderDelimiter);
-    }
 
 }

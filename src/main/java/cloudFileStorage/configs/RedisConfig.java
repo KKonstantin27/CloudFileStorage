@@ -12,12 +12,12 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @Configuration
 @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 60 * 60 * 2)
 public class RedisConfig {
-    private String redisHost = "localhost";
-    private int redisPort = 6379;
+    private static final String REDIS_HOST = "localhost";
+    private static final int REDIS_PORT = 6379;
 
     @Bean
     public LettuceConnectionFactory connectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(REDIS_HOST, REDIS_PORT);
         return new LettuceConnectionFactory(config);
     }
 

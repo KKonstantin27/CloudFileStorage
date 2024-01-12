@@ -13,9 +13,12 @@ services:
       - '3306:3306'
     environment:
       - 'MYSQL_DATABASE=CloudFileStorage'
+      - 'MYSQL_USER=CFS_User'
+      - 'MYSQL_PASSWORD=password'
       - 'MYSQL_ROOT_PASSWORD=password'
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./src/main/resources/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
   minio:
     image: minio/minio
     command: server /data --console-address ":9090"
@@ -26,6 +29,7 @@ services:
     environment:
       - 'MINIO_ROOT_USER=minio'
       - 'MINIO_ROOT_PASSWORD=password'
+      - 'MINIO_BUCKET_NAME=user-files'
     volumes:
       - minio_data:/data
   adminer:
