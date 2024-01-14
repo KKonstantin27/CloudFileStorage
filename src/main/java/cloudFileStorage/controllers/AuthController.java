@@ -7,13 +7,15 @@ import cloudFileStorage.services.UserDetailsService;
 import cloudFileStorage.services.UserObjectsService;
 import cloudFileStorage.utils.UsersMapper;
 import cloudFileStorage.utils.UsersValidator;
-import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/auth")
@@ -25,7 +27,8 @@ public class AuthController extends BaseController {
     private final UsersMapper usersMapper;
 
     @Autowired
-    public AuthController(UserDetailsService userDetailsService, UserObjectsService userObjectsService, UsersValidator usersValidator, UsersMapper usersMapper) {
+    public AuthController(UserDetailsService userDetailsService, UserObjectsService userObjectsService,
+                          UsersValidator usersValidator, UsersMapper usersMapper) {
         this.userDetailsService = userDetailsService;
         this.userObjectsService = userObjectsService;
         this.usersValidator = usersValidator;
@@ -33,11 +36,7 @@ public class AuthController extends BaseController {
     }
 
     @GetMapping("/signIn")
-    public String getAuthPage(@RequestParam(value = "error", required = false) String error, HttpServletResponse response) {
-//        if (error != null) {
-//            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-//            return "auth/signIn";
-//        }
+    public String getAuthPage() {
         return "auth/signIn";
     }
 
@@ -47,12 +46,13 @@ public class AuthController extends BaseController {
     }
 
     @PostMapping("/signUp")
-    public String signUp(@ModelAttribute("userDTO") @Valid UserDTO userDTO, BindingResult bindingResult, HttpServletResponse response) throws StorageException {
+    public String signUp(@ModelAttribute("userDTO") @Valid UserDTO userDTO, BindingResult bindingResult) throws StorageException {
         usersValidator.validate(userDTO, bindingResult);
+
         if (bindingResult.hasErrors()) {
-//            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "auth/signUp";
         }
+
         User savedUser = userDetailsService.signUp(usersMapper.convertToUser(userDTO));
         userObjectsService.createUserStorage("user-" + savedUser.getId() + "-files");
         return "redirect:/auth/success";

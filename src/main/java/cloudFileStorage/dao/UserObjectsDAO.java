@@ -7,7 +7,6 @@ import io.minio.messages.DeleteError;
 import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,19 +26,19 @@ public class UserObjectsDAO {
         this.minioClient = minioClient;
     }
 
-    public void createUserFolder(String newUserFolderName) throws StorageException {
+    public Iterable<Result<Item>> getUserObjects(String path, boolean isRecursive) throws StorageException {
+        Iterable<Result<Item>> results;
         try {
-            minioClient.putObject(PutObjectArgs
-                    .builder()
+            results = minioClient.listObjects(ListObjectsArgs.builder()
                     .bucket("user-files")
-                    .object(newUserFolderName)
-                    .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
+                    .prefix(path)
+                    .startAfter(path)
+                    .recursive(isRecursive)
                     .build());
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
-                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
-                 XmlParserException e) {
+        } catch (Exception e) {
             throw new StorageException();
         }
+        return results;
     }
 
     public boolean uploadUserObject(String userObjectName, MultipartFile userFile) throws StorageException {
@@ -59,19 +58,18 @@ public class UserObjectsDAO {
         return true;
     }
 
-    public Iterable<Result<Item>> getUserObjects(String path, boolean isRecursive) throws StorageException {
-        Iterable<Result<Item>> results;
+    public InputStream downloadUserObject(String UserFileObject) throws StorageException {
         try {
-            results = minioClient.listObjects(ListObjectsArgs.builder()
+            return minioClient.getObject(GetObjectArgs
+                    .builder()
                     .bucket("user-files")
-                    .prefix(path)
-                    .startAfter(path)
-                    .recursive(isRecursive)
+                    .object(UserFileObject)
                     .build());
-        } catch (Exception e) {
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException e) {
             throw new StorageException();
         }
-        return results;
     }
 
     public void copyUserObject(String oldUserObjectName, String newUserObjectName) throws StorageException {
@@ -93,12 +91,27 @@ public class UserObjectsDAO {
         }
     }
 
-    public InputStream downloadUserObject(String UserFileObject) throws StorageException {
+    public void deleteUserObject(String path) throws StorageException {
         try {
-            return minioClient.getObject(GetObjectArgs
+            minioClient.removeObject(RemoveObjectArgs
                     .builder()
                     .bucket("user-files")
-                    .object(UserFileObject)
+                    .object(path)
+                    .build());
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException e) {
+            throw new StorageException();
+        }
+    }
+
+    public void createUserFolder(String newUserFolderName) throws StorageException {
+        try {
+            minioClient.putObject(PutObjectArgs
+                    .builder()
+                    .bucket("user-files")
+                    .object(newUserFolderName)
+                    .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
                     .build());
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
@@ -123,20 +136,6 @@ public class UserObjectsDAO {
                 throw new StorageException();
             }
             System.out.println("Error in deleting object " + error.objectName() + "; " + error.message());
-        }
-    }
-
-    public void deleteUserObject(String path) throws StorageException {
-        try {
-            minioClient.removeObject(RemoveObjectArgs
-                    .builder()
-                    .bucket("user-files")
-                    .object(path)
-                    .build());
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
-                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
-                 XmlParserException e) {
-            throw new StorageException();
         }
     }
 }

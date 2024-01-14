@@ -1,11 +1,8 @@
 package cloudFileStorage.dto;
 
-import cloudFileStorage.enums.UserObjectSizeUnits;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

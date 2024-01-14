@@ -1,17 +1,13 @@
 package cloudFileStorage;
 
-import cloudFileStorage.configs.MinioBucketConfig;
-import cloudFileStorage.configs.MinioClientConfig;
-import cloudFileStorage.configs.RedisConfig;
 import cloudFileStorage.models.User;
 import cloudFileStorage.repositories.UsersRepository;
 import cloudFileStorage.services.UserDetailsService;
-import org.hibernate.exception.ConstraintViolationException;
-import org.junit.ClassRule;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -27,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 @Testcontainers
 @TestPropertySource(locations="classpath:application-test.properties")
-public class UserDetailsServiceTest {
+public class CustomUserDetailsServiceTest {
 
     @Container
     private static final MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql")
@@ -58,6 +54,8 @@ public class UserDetailsServiceTest {
         registry.add("minio.client-user", minioContainer::getUserName);
         registry.add("minio.client-password", minioContainer::getPassword);
         registry.add("minio.client-endpoint", minioContainer::getS3URL);
+        registry.add("spring.data.redis.host", redisContainer::getHost);
+        registry.add("spring.data.redis.port", () -> redisContainer.getMappedPort(6379));
         mySQLContainer.withInitScript("scripts/init-test.sql");
     }
 
@@ -73,11 +71,10 @@ public class UserDetailsServiceTest {
     }
 
     @Test
-    public void testSignUpWithExistedName() {
+    public void signUpNotValidatedDataShouldThrowException() {
         userDetailsService.signUp(new User("TestName", "TestPassword"));
-        DataIntegrityViolationException e = assertThrows(DataIntegrityViolationException.class, () -> {
-            userDetailsService.signUp(new User("TestName", "TestPassword"));
-        });
+        DataIntegrityViolationException e = assertThrows(DataIntegrityViolationException.class,
+                () -> userDetailsService.signUp(new User("TestName", "TestPassword")));
     }
 
 }

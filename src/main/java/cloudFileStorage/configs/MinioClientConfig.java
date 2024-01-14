@@ -13,13 +13,12 @@ public class MinioClientConfig {
     private String minioPassword;
     @Value("${minio.client-endpoint}")
     private String minioEndpoint;
+
     @Bean
     public MinioClient buildMinioClient() {
-        System.out.println(minioUser);
-        System.out.println(minioEndpoint);
         return MinioClient.builder()
-                        .endpoint(minioEndpoint)
-                        .credentials(minioUser, minioPassword)
-                        .build();
+                .endpoint(minioEndpoint)
+                .credentials(minioUser, minioPassword)
+                .build();
     }
 }

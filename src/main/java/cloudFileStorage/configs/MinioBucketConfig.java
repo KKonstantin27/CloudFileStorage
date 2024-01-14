@@ -13,6 +13,7 @@ public class MinioBucketConfig implements ApplicationListener<ContextRefreshedEv
     private String bucketName;
 
     private final BucketsService bucketsService;
+
     @Autowired
     public MinioBucketConfig(BucketsService bucketsService) {
         this.bucketsService = bucketsService;

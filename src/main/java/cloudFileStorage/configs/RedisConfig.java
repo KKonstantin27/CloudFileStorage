@@ -1,5 +1,6 @@
 package cloudFileStorage.configs;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -12,12 +13,14 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @Configuration
 @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 60 * 60 * 2)
 public class RedisConfig {
-    private static final String REDIS_HOST = "localhost";
-    private static final int REDIS_PORT = 6379;
+    @Value("${spring.data.redis.host}")
+    private String redisHost;
+    @Value("${spring.data.redis.port}")
+    private int redisPort;
 
     @Bean
     public LettuceConnectionFactory connectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(REDIS_HOST, REDIS_PORT);
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
         return new LettuceConnectionFactory(config);
     }
 
@@ -27,9 +30,7 @@ public class RedisConfig {
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-
         template.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
-
         template.setConnectionFactory(lettuceConnectionFactory);
         return template;
     }

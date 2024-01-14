@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class UserFolderDTO extends UserObjectDTO {
 
-    public UserFolderDTO (String name, String shortName, String userStorageName, String path) {
+    public UserFolderDTO(String name, String shortName, String userStorageName, String path) {
         super(name, shortName, "-", userStorageName, path, true);
     }
 

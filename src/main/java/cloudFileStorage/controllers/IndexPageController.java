@@ -4,43 +4,31 @@ import cloudFileStorage.dto.UserFileDTO;
 import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
 import cloudFileStorage.exceptions.StorageException;
-import cloudFileStorage.security.UserDetails;
 import cloudFileStorage.services.UserObjectsService;
-import io.minio.errors.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import cloudFileStorage.utils.BreadcrumbsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.support.RequestContext;
-import org.springframework.web.servlet.support.RequestContextUtils;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.time.ZoneId;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class IndexPageController extends BaseController {
 
     private final UserObjectsService userObjectsService;
+    private final BreadcrumbsUtil breadcrumbsUtil;
 
     @Autowired
-    public IndexPageController(UserObjectsService userObjectsService) {
+    public IndexPageController(UserObjectsService userObjectsService, BreadcrumbsUtil breadcrumbsUtil) {
         this.userObjectsService = userObjectsService;
+        this.breadcrumbsUtil = breadcrumbsUtil;
     }
 
     @GetMapping("/")
@@ -55,7 +43,8 @@ public class IndexPageController extends BaseController {
         }
 
         List<UserObjectDTO> userObjectDTOList = userObjectsService.getUserObjects(getUserStorageName(), path);
-        Map<String, String> breadcrumbs = userObjectsService.buildBreadcrumbs(getUserStorageName(), path);
+        Map<String, String> breadcrumbs = breadcrumbsUtil.buildBreadcrumbs(getUserStorageName(), path);
+
         model.addAttribute("userStorageName", getUserStorageName());
         model.addAttribute("breadcrumbs", breadcrumbs);
         model.addAttribute("userObjectDTOList", userObjectDTOList);

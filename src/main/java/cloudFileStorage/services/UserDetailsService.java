@@ -4,7 +4,7 @@ import cloudFileStorage.enums.UserRoles;
 import cloudFileStorage.exceptions.UserNotFoundOrWrongPasswordException;
 import cloudFileStorage.models.User;
 import cloudFileStorage.repositories.UsersRepository;
-import cloudFileStorage.security.UserDetails;
+import cloudFileStorage.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,6 +43,6 @@ public class UserDetailsService implements org.springframework.security.core.use
         if (userOptional.isEmpty()) {
             throw new UserNotFoundOrWrongPasswordException("Wrong username or password");
         }
-        return new UserDetails(userOptional.get());
+        return new CustomUserDetails(userOptional.get());
     }
 }

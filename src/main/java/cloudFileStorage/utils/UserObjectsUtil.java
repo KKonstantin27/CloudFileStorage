@@ -56,7 +56,8 @@ public class UserObjectsUtil {
             if (currentUniqueNum == 0) {
                 userObjectNameSB.append(" (").append(currentUniqueNum + 1).append(")");
             } else {
-                userObjectNameSB.replace(userObjectNameSB.length() - 2, userObjectNameSB.length() - 1, currentUniqueNum + 1 + "");
+                userObjectNameSB.replace(userObjectNameSB.length() - 2, userObjectNameSB.length() - 1,
+                        currentUniqueNum + 1 + "");
             }
             currentUniqueNum++;
         }

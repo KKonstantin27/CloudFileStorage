@@ -1,6 +1,5 @@
 package cloudFileStorage.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -23,5 +22,4 @@ public class UserDTO {
     private String password;
 
     private String repeatPassword;
-
 }

@@ -4,6 +4,7 @@ public enum UserRoles {
     USER("USER"),
     ADMIN("ADMIN");
     private String userRole;
+
     UserRoles(String userRole) {
         this.userRole = userRole;
     }
