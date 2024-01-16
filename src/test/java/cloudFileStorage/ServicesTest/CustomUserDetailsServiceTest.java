@@ -1,8 +1,8 @@
-package cloudFileStorage;
+package cloudFileStorage.ServicesTest;
 
 import cloudFileStorage.models.User;
 import cloudFileStorage.repositories.UsersRepository;
-import cloudFileStorage.services.UserDetailsService;
+import cloudFileStorage.services.CustomUserDetailsService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,12 +19,12 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Testcontainers
 @TestPropertySource(locations="classpath:application-test.properties")
 public class CustomUserDetailsServiceTest {
-
     @Container
     private static final MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql")
             .withExposedPorts(3306)
@@ -44,7 +44,7 @@ public class CustomUserDetailsServiceTest {
     @Autowired
     private UsersRepository usersRepository;
     @Autowired
-    private UserDetailsService userDetailsService;
+    private CustomUserDetailsService customUserDetailsService;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -66,15 +66,14 @@ public class CustomUserDetailsServiceTest {
 
     @Test
     public void testSignUp() {
-        userDetailsService.signUp(new User("TestName", "TestPassword"));
+        customUserDetailsService.signUp(new User("TestName", "TestPassword"));
         Assertions.assertEquals(1, usersRepository.count());
     }
 
     @Test
-    public void signUpNotValidatedDataShouldThrowException() {
-        userDetailsService.signUp(new User("TestName", "TestPassword"));
+    public void signUpWithExistedUsernameShouldThrowException() {
+        customUserDetailsService.signUp(new User("TestName", "TestPassword"));
         DataIntegrityViolationException e = assertThrows(DataIntegrityViolationException.class,
-                () -> userDetailsService.signUp(new User("TestName", "TestPassword")));
+                () -> customUserDetailsService.signUp(new User("TestName", "TestPassword")));
     }
-
 }

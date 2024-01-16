@@ -2,7 +2,7 @@ package cloudFileStorage.utils;
 
 import cloudFileStorage.dto.UserDTO;
 import cloudFileStorage.models.User;
-import cloudFileStorage.services.UserDetailsService;
+import cloudFileStorage.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -12,11 +12,11 @@ import java.util.Optional;
 
 @Component
 public class UsersValidator implements Validator {
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Autowired
-    public UsersValidator(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    public UsersValidator(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class UsersValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         UserDTO userDTO = (UserDTO) target;
-        Optional<User> userOptional = userDetailsService.loadUserOptionalByUsername(userDTO.getUsername());
+        Optional<User> userOptional = customUserDetailsService.loadUserOptionalByUsername(userDTO.getUsername());
         if (userOptional.isPresent()) {
             errors.rejectValue("username", "", "Username already in use");
         }

@@ -3,11 +3,10 @@ package cloudFileStorage.controllers;
 import cloudFileStorage.dto.UserDTO;
 import cloudFileStorage.exceptions.StorageException;
 import cloudFileStorage.models.User;
-import cloudFileStorage.services.UserDetailsService;
+import cloudFileStorage.services.CustomUserDetailsService;
 import cloudFileStorage.services.UserObjectsService;
 import cloudFileStorage.utils.UsersMapper;
 import cloudFileStorage.utils.UsersValidator;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,16 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/auth")
 public class AuthController extends BaseController {
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final UserObjectsService userObjectsService;
 
     private final UsersValidator usersValidator;
     private final UsersMapper usersMapper;
 
     @Autowired
-    public AuthController(UserDetailsService userDetailsService, UserObjectsService userObjectsService,
+    public AuthController(CustomUserDetailsService customUserDetailsService, UserObjectsService userObjectsService,
                           UsersValidator usersValidator, UsersMapper usersMapper) {
-        this.userDetailsService = userDetailsService;
+        this.customUserDetailsService = customUserDetailsService;
         this.userObjectsService = userObjectsService;
         this.usersValidator = usersValidator;
         this.usersMapper = usersMapper;
@@ -53,7 +52,7 @@ public class AuthController extends BaseController {
             return "auth/signUp";
         }
 
-        User savedUser = userDetailsService.signUp(usersMapper.convertToUser(userDTO));
+        User savedUser = customUserDetailsService.signUp(usersMapper.convertToUser(userDTO));
         userObjectsService.createUserStorage("user-" + savedUser.getId() + "-files");
         return "redirect:/auth/success";
     }
