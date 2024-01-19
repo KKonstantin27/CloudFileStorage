@@ -19,12 +19,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(value = AuthController.class)
@@ -67,9 +64,9 @@ public class AuthControllerTest {
         UserDTO userDTO = new UserDTO("Test Name", "TestPassword", "TestPassword");
 
         mockMvc.perform(MockMvcRequestBuilders
-                .post("/auth/signUp")
-                .with(csrf()).flashAttr("userDTO", userDTO)
-                .contentType(MediaType.MULTIPART_FORM_DATA))
+                        .post("/auth/signUp")
+                        .with(csrf()).flashAttr("userDTO", userDTO)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(view().name("auth/signUp"))
                 .andExpect(status().is2xxSuccessful());
     }
@@ -119,6 +116,7 @@ public class AuthControllerTest {
                 .andExpect(view().name("auth/signUp"))
                 .andExpect(status().is2xxSuccessful());
     }
+
     @Test
     public void shortPasswordShouldReturnSignUpTemplate() throws Exception {
         UserDTO userDTO = new UserDTO("TestName", "Test", "Test");
@@ -179,8 +177,12 @@ public class AuthControllerTest {
                 .andExpect(status().is2xxSuccessful());
     }
 
-//    @Test
-//    public void validSignInShouldRedirectToIndexPage() throws Exception {
+    @Test
+    public void validSignInShouldRedirectToIndexPage() throws Exception {
+        mockMvc.perform(formLogin("/process_signIn")
+                        .user("TestUser")
+                        .password("TestPassword"))
+                .andExpect(redirectedUrl("/"));
 //        UserDTO userDTO = new UserDTO("TestName", "TestPassword", "TestPassword");
 //        User savedUser = new User(userDTO.getUsername(), userDTO.getPassword());
 //
@@ -192,6 +194,6 @@ public class AuthControllerTest {
 //                        .principal(new UserPrincipal("TestName")))
 //                .andExpect(redirectedUrl("/"))
 //                .andExpect(status().is3xxRedirection());
-//
-//    }
+
+    }
 }

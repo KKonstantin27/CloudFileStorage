@@ -19,14 +19,14 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Testcontainers
-@TestPropertySource(locations="classpath:application-test.properties")
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class CustomUserDetailsServiceTest {
     @Container
     private static final MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql")
+            .withInitScript("scripts/init-test.sql")
             .withExposedPorts(3306)
             .withUsername("CFS_Test_User")
             .withPassword("CFS_Test_password")
@@ -56,7 +56,6 @@ public class CustomUserDetailsServiceTest {
         registry.add("minio.client-endpoint", minioContainer::getS3URL);
         registry.add("spring.data.redis.host", redisContainer::getHost);
         registry.add("spring.data.redis.port", () -> redisContainer.getMappedPort(6379));
-        mySQLContainer.withInitScript("scripts/init-test.sql");
     }
 
     @BeforeEach

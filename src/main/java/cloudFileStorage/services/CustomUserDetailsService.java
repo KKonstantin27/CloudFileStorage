@@ -6,6 +6,7 @@ import cloudFileStorage.models.User;
 import cloudFileStorage.repositories.UsersRepository;
 import cloudFileStorage.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,7 +40,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = usersRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
             throw new UserNotFoundOrWrongPasswordException("Wrong username or password");

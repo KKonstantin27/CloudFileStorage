@@ -86,7 +86,7 @@ public class UserObjectsUtil {
         return userObjectNameWithoutStorageName.toString();
     }
 
-    public boolean isUserObjectNameBusy(String userObjectName, String path) throws StorageException {
+    private boolean isUserObjectNameBusy(String userObjectName, String path) throws StorageException {
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(path, false);
         try {
             for (Result<Item> userObject : userObjects) {
