@@ -3,8 +3,8 @@ package cloudFileStorage.controllers;
 import cloudFileStorage.dto.UserFileDTO;
 import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
-import cloudFileStorage.exceptions.StorageException;
 import cloudFileStorage.services.UserObjectsService;
+import io.minio.errors.*;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
 
@@ -33,7 +35,10 @@ public class UserStorageController extends BaseController {
     }
 
     @GetMapping("/search")
-    public String searchUserObjects(@RequestParam("query") String searchQuery, Model model) throws StorageException {
+    public String searchUserObjects(@RequestParam("query") String searchQuery, Model model) throws ServerException,
+            InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
+
         List<UserObjectDTO> userObjectDTOList = userObjectsService.getUserObjectsBySearchQuery(getUserStorageName(), searchQuery);
         model.addAttribute("userObjectDTOList", userObjectDTOList);
         return "searchResult";
@@ -41,7 +46,9 @@ public class UserStorageController extends BaseController {
 
     @PostMapping("/create/folder")
     public String createFolder(@ModelAttribute("userFolderDTO") @Valid UserFolderDTO userFolderDTO,
-                               BindingResult bindingResult, RedirectAttributes redirectAttributes) throws StorageException {
+                               BindingResult bindingResult, RedirectAttributes redirectAttributes) throws ServerException,
+            InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
 
         if (bindingResult.hasErrors()) {
             setErrorsRedirectAttribute(bindingResult, redirectAttributes);
@@ -54,30 +61,32 @@ public class UserStorageController extends BaseController {
 
     @PostMapping("/upload/folder")
     public String uploadFolder(@RequestParam(value = "path", required = false) String path,
-                               @RequestParam("userObject") MultipartFile[] userObjects) throws StorageException {
+                               @RequestParam("userObject") MultipartFile[] userObjects) throws ServerException,
+            InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
+
         userObjectsService.uploadUserFolder(getUserStorageName(), path, userObjects);
         return getRedirectURL(path);
     }
 
     @PostMapping("/download/folder")
-    public void downloadUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO,
-                                   HttpServletResponse response) throws StorageException {
+    public void downloadUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO, HttpServletResponse response) throws
+            ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException,
+            InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
 
         response.setHeader("Content-Disposition", "attachment; filename=" + userFolderDTO.getShortName() + ".zip");
-//        response.setStatus(HttpServletResponse.SC_OK);
 
-        try (OutputStream os = response.getOutputStream();
-             ZipOutputStream zos = new ZipOutputStream(os)) {
+        try (OutputStream os = response.getOutputStream(); ZipOutputStream zos = new ZipOutputStream(os)) {
             userObjectsService.downloadUserFolder(getUserStorageName(), userFolderDTO, zos);
-        } catch (IOException e) {
-            throw new StorageException();
         }
     }
 
     @PatchMapping("/rename/folder")
     public String renameUserFolder(@ModelAttribute("userFolderDTO") @Valid UserFolderDTO userFolderDTO, BindingResult bindingResult,
                                    @RequestParam("oldShortUserFolderName") String oldShortUserFolderName,
-                                   RedirectAttributes redirectAttributes) throws StorageException {
+                                   RedirectAttributes redirectAttributes) throws ServerException, InsufficientDataException,
+            ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException,
+            XmlParserException, InternalException {
 
         if (bindingResult.hasErrors()) {
             setErrorsRedirectAttribute(bindingResult, redirectAttributes);
@@ -89,37 +98,43 @@ public class UserStorageController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete/folder")
-    public String deleteUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws StorageException {
+    public String deleteUserFolder(@ModelAttribute("userFolderDTO") UserFolderDTO userFolderDTO) throws ServerException,
+            InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
+
         userObjectsService.deleteUserFolder(getUserStorageName(), userFolderDTO);
         return getRedirectURL(userFolderDTO);
     }
 
     @PostMapping("/upload/files")
     public String uploadFiles(@RequestParam(value = "path", required = false) String path,
-                              @RequestParam("userObject") MultipartFile[] userObjects) throws StorageException {
+                              @RequestParam("userObject") MultipartFile[] userObjects) throws ServerException, InsufficientDataException,
+            ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException,
+            XmlParserException, InternalException {
+
         userObjectsService.uploadUserFiles(getUserStorageName(), path, userObjects);
         return getRedirectURL(path);
     }
 
     @PostMapping("/download/file")
-    public void downloadUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO,
-                                 HttpServletResponse response) throws StorageException {
+    public void downloadUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO, HttpServletResponse response) throws
+            ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException,
+            InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
 
-        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder
-                .encode(userFileDTO.getShortName(), StandardCharsets.UTF_8).replace("+", "%20"));
-//        response.setStatus(HttpServletResponse.SC_OK);
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(
+                userFileDTO.getShortName(), StandardCharsets.UTF_8).replace("+", "%20"));
 
         try (OutputStream os = response.getOutputStream()) {
             userObjectsService.downloadUserFile(getUserStorageName(), userFileDTO, os);
-        } catch (IOException e) {
-            throw new StorageException();
         }
     }
 
     @PatchMapping("/rename/file")
     public String renameUserFile(@ModelAttribute("userFileDTO") @Valid UserFileDTO userFileDTO, BindingResult bindingResult,
                                  @RequestParam("oldShortUserFileName") String oldShortUserFileName,
-                                 RedirectAttributes redirectAttributes) throws StorageException {
+                                 RedirectAttributes redirectAttributes) throws ServerException, InsufficientDataException,
+            ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException,
+            XmlParserException, InternalException {
 
         if (bindingResult.hasErrors()) {
             setErrorsRedirectAttribute(bindingResult, redirectAttributes);
@@ -131,7 +146,10 @@ public class UserStorageController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete/file")
-    public String deleteUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) throws StorageException {
+    public String deleteUserFile(@ModelAttribute("userFileDTO") UserFileDTO userFileDTO) throws ServerException,
+            InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
+
         userObjectsService.deleteUserFile(getUserStorageName(), userFileDTO);
         return getRedirectURL(userFileDTO);
     }

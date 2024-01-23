@@ -12,8 +12,6 @@
 <div class="fluid-container">
     <div sec:authorize="isAnonymous()" th:insert="~{/fragments/headers :: unauthorized-user-header}"></div>
     <div sec:authorize="!isAnonymous()" th:insert="~{/fragments/headers :: authorized-user-header}"></div>
-<!--    <div sec:authorize="isAnonymous()" th:insert="~{/fragments/mainPages:: unauthorized-user-mainPage}"></div>-->
-<!--    <div sec:authorize="!isAnonymous()" th:insert="~{/fragments/mainPages:: authorized-user-mainPage}"></div>-->
     <div sec:authorize="isAnonymous()" class="row d-flex justify-content-center mt-5">
         <div class="col-6 justify-content-center align-items-center d-flex">
             <div>

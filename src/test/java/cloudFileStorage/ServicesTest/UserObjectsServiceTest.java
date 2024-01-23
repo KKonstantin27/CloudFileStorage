@@ -4,7 +4,6 @@ import cloudFileStorage.dao.UserObjectsDAO;
 import cloudFileStorage.dto.UserFileDTO;
 import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
-import cloudFileStorage.exceptions.StorageException;
 import cloudFileStorage.services.UserObjectsService;
 import cloudFileStorage.utils.UserObjectsUtil;
 import io.minio.Result;
@@ -75,63 +74,83 @@ public class UserObjectsServiceTest {
 
     @Test
     @Order(1)
-    public void testCreateUserStorage() throws StorageException, ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void testCreateUserStorage() throws ServerException, InsufficientDataException, ErrorResponseException,
+            IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException,
+            InternalException {
+
         userObjectsService.createUserStorage(TEST_USER_STORAGE_NAME);
         Iterable<Result<Item>> results = userObjectsDAO.getUserObjects("", false);
         int countObjects = 0;
         for (Result<Item> result : results) {
             countObjects++;
         }
+
         Assertions.assertEquals(1, countObjects);
     }
 
     @Test
     @Order(2)
-    public void testCreateUserFolder() throws StorageException, ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.createUserFolder(TEST_USER_STORAGE_NAME, new UserFolderDTO("", "TestName", TEST_USER_STORAGE_NAME, ""));
+    public void testCreateUserFolder() throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
+        userObjectsService.createUserFolder(TEST_USER_STORAGE_NAME, new UserFolderDTO(
+                "", "TestName", TEST_USER_STORAGE_NAME, ""));
         Iterable<Result<Item>> results = userObjectsDAO.getUserObjects(TEST_USER_STORAGE_NAME, false);
         int countObjects = 0;
         String shortUserFolderName = "";
+
         for (Result<Item> result : results) {
             shortUserFolderName = userObjectsUtil.getShortUserObjectName(result.get().objectName());
             countObjects++;
         }
+
         Assertions.assertEquals(1, countObjects);
         Assertions.assertEquals("TestName", shortUserFolderName);
     }
 
     @Test
     @Order(3)
-    public void testUploadUserFolder() throws StorageException, ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        MockMultipartFile[] mockMultipartFiles =
-                {new MockMultipartFile("Test", "FolderUploadTest/File.txt", "text/plain", "TestFile".getBytes())};
+    public void testUploadUserFolder() throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
+        MockMultipartFile[] mockMultipartFiles = {new MockMultipartFile("Test", "FolderUploadTest/File.txt",
+                "text/plain", "TestFile".getBytes())};
+
         userObjectsService.uploadUserFolder(TEST_USER_STORAGE_NAME, "", mockMultipartFiles);
         Iterable<Result<Item>> results = userObjectsDAO.getUserObjects(TEST_USER_STORAGE_NAME + "FolderUploadTest" + FOLDER_DELIMITER, false);
         String shortUserFileName = "";
         int countObjects = 0;
+
         for (Result<Item> result : results) {
             shortUserFileName = userObjectsUtil.getShortUserObjectName(result.get().objectName());
             countObjects++;
         }
+
         Assertions.assertEquals(1, countObjects);
         Assertions.assertEquals("File.txt", shortUserFileName);
     }
 
     @Test
     @Order(4)
-    public void testUploadUserFiles() throws StorageException, ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void testUploadUserFiles() throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
         MockMultipartFile[] mockMultipartFiles = new MockMultipartFile[2];
+
         for (int i = 0; i < mockMultipartFiles.length; i++) {
             mockMultipartFiles[i] = new MockMultipartFile("Test" + i, "File" + i + ".txt", "text/plain", "TestFile".getBytes());
         }
+
         userObjectsService.uploadUserFiles(TEST_USER_STORAGE_NAME, "TestName" + FOLDER_DELIMITER, mockMultipartFiles);
         Iterable<Result<Item>> results = userObjectsDAO.getUserObjects(TEST_USER_STORAGE_NAME + "TestName" + FOLDER_DELIMITER, false);
         String[] shortUserFileNames = new String[2];
         int countObjects = 0;
+
         for (Result<Item> result : results) {
             shortUserFileNames[countObjects] = userObjectsUtil.getShortUserObjectName(result.get().objectName());
             countObjects++;
         }
+
         Assertions.assertEquals(2, countObjects);
         Assertions.assertEquals("File0.txt", shortUserFileNames[0]);
         Assertions.assertEquals("File1.txt", shortUserFileNames[1]);
@@ -139,74 +158,97 @@ public class UserObjectsServiceTest {
 
     @Test
     @Order(5)
-    public void testRenameUserFolder() throws StorageException, ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.renameUserFolder(TEST_USER_STORAGE_NAME, "TestName", new UserFolderDTO("", "NewTestName", TEST_USER_STORAGE_NAME, ""));
+    public void testRenameUserFolder() throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
+        userObjectsService.renameUserFolder(TEST_USER_STORAGE_NAME, "TestName", new UserFolderDTO(
+                "", "NewTestName", TEST_USER_STORAGE_NAME, ""));
+
         Iterable<Result<Item>> results = userObjectsDAO.getUserObjects(TEST_USER_STORAGE_NAME, false);
         int countObjects = 0;
         String shortUserFolderName = "";
+
         for (Result<Item> result : results) {
             shortUserFolderName = userObjectsUtil.getShortUserObjectName(result.get().objectName());
             countObjects++;
         }
+
         Assertions.assertEquals(2, countObjects);
         Assertions.assertEquals("NewTestName", shortUserFolderName);
     }
 
     @Test
     @Order(6)
-    public void testRenameUserFile() throws StorageException, ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.renameUserFile(TEST_USER_STORAGE_NAME, "File1.txt", new UserFileDTO("", "NewFile1.txt", 0, TEST_USER_STORAGE_NAME, "NewTestName" + FOLDER_DELIMITER));
+    public void testRenameUserFile() throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
+        userObjectsService.renameUserFile(TEST_USER_STORAGE_NAME, "File1.txt", new UserFileDTO(
+                "", "NewFile1.txt", 0, TEST_USER_STORAGE_NAME, "NewTestName" + FOLDER_DELIMITER));
+
         Iterable<Result<Item>> results = userObjectsDAO.getUserObjects(TEST_USER_STORAGE_NAME + "NewTestName" + FOLDER_DELIMITER, false);
         int countObjects = 0;
         String shortUserFolderName = "";
+
         for (Result<Item> result : results) {
             shortUserFolderName = userObjectsUtil.getShortUserObjectName(result.get().objectName());
             countObjects++;
         }
+
         Assertions.assertEquals(2, countObjects);
         Assertions.assertEquals("NewFile1.txt", shortUserFolderName);
     }
 
     @Test
     @Order(7)
-    public void testSearchUserObjects() throws StorageException, ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void testSearchUserObjects() throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
         List<UserObjectDTO> fileSearchResult = userObjectsService.getUserObjectsBySearchQuery(TEST_USER_STORAGE_NAME, "NewFile1.txt");
         List<UserObjectDTO> folderSearchResult = userObjectsService.getUserObjectsBySearchQuery(TEST_USER_STORAGE_NAME, "NewTestName");
 
-        UserObjectDTO fileSearchExpectedResult = new UserFileDTO("NewTestName" + FOLDER_DELIMITER + "NewFile1.txt", "NewFile1.txt", 0, TEST_USER_STORAGE_NAME, "NewTestName" + FOLDER_DELIMITER);
-        UserObjectDTO folderSearchExpectedResult = new UserFolderDTO("NewTestName", "NewTestName", TEST_USER_STORAGE_NAME, "");
-
         Assertions.assertEquals(1, fileSearchResult.size());
-        Assertions.assertEquals( "NewTestName" + FOLDER_DELIMITER + "NewFile1.txt", fileSearchResult.get(0).getName());
+        Assertions.assertEquals("NewTestName" + FOLDER_DELIMITER + "NewFile1.txt", fileSearchResult.get(0).getName());
         Assertions.assertEquals(1, folderSearchResult.size());
         Assertions.assertEquals("NewTestName" + FOLDER_DELIMITER, folderSearchResult.get(0).getName());
     }
 
     @Test
     @Order(8)
-    public void testDeleteUserFile() throws StorageException, ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.deleteUserFile(TEST_USER_STORAGE_NAME, new UserFileDTO("NewTestName" + FOLDER_DELIMITER + "NewFile1.txt", "NewFile1.txt", 0, TEST_USER_STORAGE_NAME, "NewTestName" + FOLDER_DELIMITER));
+    public void testDeleteUserFile() throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
+        userObjectsService.deleteUserFile(TEST_USER_STORAGE_NAME, new UserFileDTO("NewTestName" + FOLDER_DELIMITER + "NewFile1.txt",
+                "NewFile1.txt", 0, TEST_USER_STORAGE_NAME, "NewTestName" + FOLDER_DELIMITER));
+
         Iterable<Result<Item>> results = userObjectsDAO.getUserObjects(TEST_USER_STORAGE_NAME + "NewTestName" + FOLDER_DELIMITER, false);
         int countObjects = 0;
         String shortUserFolderName = "";
+
         for (Result<Item> result : results) {
             System.out.println(result.get().objectName());
             shortUserFolderName = userObjectsUtil.getShortUserObjectName(result.get().objectName());
             countObjects++;
         }
+
         Assertions.assertEquals(1, countObjects);
         Assertions.assertEquals("File0.txt", shortUserFolderName);
     }
 
     @Test
     @Order(9)
-    public void testDeleteUserFolder() throws StorageException, ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        userObjectsService.deleteUserFolder(TEST_USER_STORAGE_NAME, new UserFolderDTO("NewTestName", "", TEST_USER_STORAGE_NAME, ""));
+    public void testDeleteUserFolder() throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
+        userObjectsService.deleteUserFolder(TEST_USER_STORAGE_NAME, new UserFolderDTO(
+                "NewTestName", "", TEST_USER_STORAGE_NAME, ""));
+
         Iterable<Result<Item>> results = userObjectsDAO.getUserObjects(TEST_USER_STORAGE_NAME, false);
         int countObjects = 0;
+
         for (Result<Item> result : results) {
             countObjects++;
         }
+
         Assertions.assertEquals(1, countObjects);
     }
 }

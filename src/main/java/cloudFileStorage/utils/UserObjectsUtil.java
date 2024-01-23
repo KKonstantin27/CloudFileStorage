@@ -4,7 +4,6 @@ import cloudFileStorage.dao.UserObjectsDAO;
 import cloudFileStorage.dto.UserFileDTO;
 import cloudFileStorage.dto.UserFolderDTO;
 import cloudFileStorage.dto.UserObjectDTO;
-import cloudFileStorage.exceptions.StorageException;
 import io.minio.Result;
 import io.minio.errors.*;
 import io.minio.messages.Item;
@@ -31,6 +30,7 @@ public class UserObjectsUtil {
     }
 
     public String buildUserObjectPathWithoutStorageName(String userObjectName) {
+
         String[] userObjectNameArr = userObjectName.split(FOLDER_DELIMITER);
         StringBuilder userObjectPath = new StringBuilder();
         for (int i = 1; i < userObjectNameArr.length - 1; i++) {
@@ -40,6 +40,7 @@ public class UserObjectsUtil {
     }
 
     public List<UserObjectDTO> sortUserObjectDTOList(List<UserFolderDTO> userFolderDTOList, List<UserFileDTO> userFileDTOList) {
+
         Comparator<UserObjectDTO> userObjectDTOComparator = Comparator.comparing(UserObjectDTO::getName);
         Collections.sort(userFolderDTOList, userObjectDTOComparator);
         Collections.sort(userFileDTOList, userObjectDTOComparator);
@@ -49,7 +50,10 @@ public class UserObjectsUtil {
         return userObjectDTOList;
     }
 
-    public String buildUniqueUserObjectName(String userObjectName, String path) throws StorageException {
+    public String buildUniqueUserObjectName(String userObjectName, String path) throws ServerException, InsufficientDataException,
+            ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException,
+            XmlParserException, InternalException {
+
         StringBuilder userObjectNameSB = new StringBuilder(userObjectName);
         int currentUniqueNum = 0;
         while (isUserObjectNameBusy(userObjectNameSB.toString(), path)) {
@@ -69,11 +73,13 @@ public class UserObjectsUtil {
     }
 
     public String getShortUserObjectName(String userObjectName) {
+
         String[] userObjectNameArr = userObjectName.split(FOLDER_DELIMITER);
         return userObjectNameArr[userObjectNameArr.length - 1];
     }
 
     public String buildUserObjectNameWithoutStorageName(String userObjectName) {
+
         String[] userObjectNameArr = userObjectName.split(FOLDER_DELIMITER);
         StringBuilder userObjectNameWithoutStorageName = new StringBuilder();
         for (int i = 1; i < userObjectNameArr.length; i++) {
@@ -86,19 +92,17 @@ public class UserObjectsUtil {
         return userObjectNameWithoutStorageName.toString();
     }
 
-    private boolean isUserObjectNameBusy(String userObjectName, String path) throws StorageException {
+    private boolean isUserObjectNameBusy(String userObjectName, String path) throws ServerException, InsufficientDataException,
+            ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException,
+            XmlParserException, InternalException {
+
         Iterable<Result<Item>> userObjects = userObjectsDAO.getUserObjects(path, false);
-        try {
-            for (Result<Item> userObject : userObjects) {
-                if (getShortUserObjectName(userObject.get().objectName()).equals(getShortUserObjectName(userObjectName))) {
-                    return true;
-                }
+
+        for (Result<Item> userObject : userObjects) {
+            if (getShortUserObjectName(userObject.get().objectName()).equals(getShortUserObjectName(userObjectName))) {
+                return true;
             }
-            return false;
-        } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
-                 NoSuchAlgorithmException | InvalidKeyException | InvalidResponseException | XmlParserException |
-                 InternalException e) {
-            throw new StorageException();
         }
+        return false;
     }
 }

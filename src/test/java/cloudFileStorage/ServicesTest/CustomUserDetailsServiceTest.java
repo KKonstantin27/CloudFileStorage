@@ -66,12 +66,14 @@ public class CustomUserDetailsServiceTest {
     @Test
     public void testSignUp() {
         customUserDetailsService.signUp(new User("TestName", "TestPassword"));
+
         Assertions.assertEquals(1, usersRepository.count());
     }
 
     @Test
     public void signUpWithExistedUsernameShouldThrowException() {
         customUserDetailsService.signUp(new User("TestName", "TestPassword"));
+
         DataIntegrityViolationException e = assertThrows(DataIntegrityViolationException.class,
                 () -> customUserDetailsService.signUp(new User("TestName", "TestPassword")));
     }

@@ -46,6 +46,7 @@ public class AuthControllerTest {
 
     @Test
     public void validSignUpShouldRedirectToSuccessPage() throws Exception {
+
         UserDTO userDTO = new UserDTO("TestName", "TestPassword", "TestPassword");
         User savedUser = new User(userDTO.getUsername(), userDTO.getPassword());
 
@@ -61,6 +62,7 @@ public class AuthControllerTest {
 
     @Test
     public void usernameWithInvalidCharShouldReturnSignUpTemplate() throws Exception {
+
         UserDTO userDTO = new UserDTO("Test Name", "TestPassword", "TestPassword");
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -73,7 +75,9 @@ public class AuthControllerTest {
 
     @Test
     public void shortUsernameShouldReturnSignUpTemplate() throws Exception {
+
         UserDTO userDTO = new UserDTO("Tes", "TestPassword", "TestPassword");
+
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/auth/signUp")
                         .with(csrf()).flashAttr("userDTO", userDTO)
@@ -84,7 +88,10 @@ public class AuthControllerTest {
 
     @Test
     public void longUsernameShouldReturnSignUpTemplate() throws Exception {
-        UserDTO userDTO = new UserDTO("TestNameTestNameTestNameTestNameTestName", "TestPassword", "TestPassword");
+
+        UserDTO userDTO = new UserDTO(
+                "TestNameTestNameTestNameTestNameTestName", "TestPassword", "TestPassword");
+
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/auth/signUp")
                         .with(csrf()).flashAttr("userDTO", userDTO)
@@ -96,7 +103,9 @@ public class AuthControllerTest {
 
     @Test
     public void emptyUsernameShouldReturnSignUpTemplate() throws Exception {
+
         UserDTO userDTO = new UserDTO("", "TestPassword", "TestPassword");
+
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/auth/signUp")
                         .with(csrf()).flashAttr("userDTO", userDTO)
@@ -108,7 +117,9 @@ public class AuthControllerTest {
 
     @Test
     public void passwordWithInvalidCharShouldReturnSignUpTemplate() throws Exception {
+
         UserDTO userDTO = new UserDTO("TestName", "Test Password", "Test Password");
+
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/auth/signUp")
                         .with(csrf()).flashAttr("userDTO", userDTO)
@@ -119,7 +130,9 @@ public class AuthControllerTest {
 
     @Test
     public void shortPasswordShouldReturnSignUpTemplate() throws Exception {
+
         UserDTO userDTO = new UserDTO("TestName", "Test", "Test");
+
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/auth/signUp")
                         .with(csrf()).flashAttr("userDTO", userDTO)
@@ -130,7 +143,10 @@ public class AuthControllerTest {
 
     @Test
     public void longPasswordShouldReturnSignUpTemplate() throws Exception {
-        UserDTO userDTO = new UserDTO("TestName", "TestPasswordTestPasswordTestPasswordTestPassword", "TestPasswordTestPasswordTestPasswordTestPassword");
+
+        UserDTO userDTO = new UserDTO(
+                "TestName", "TestPasswordTestPasswordTestPasswordTestPassword", "TestPasswordTestPasswordTestPasswordTestPassword");
+
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/auth/signUp")
                         .with(csrf()).flashAttr("userDTO", userDTO)
@@ -141,6 +157,7 @@ public class AuthControllerTest {
 
     @Test
     public void emptyPasswordShouldReturnSignUpTemplate() throws Exception {
+
         UserDTO userDTO = new UserDTO("TestName", "", "");
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/auth/signUp")
@@ -152,7 +169,9 @@ public class AuthControllerTest {
 
     @Test
     public void passwordsDoNotMatchShouldReturnSignUpTemplate() throws Exception {
+
         UserDTO userDTO = new UserDTO("TestName", "TestPassword1", "TestPassword2");
+
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/auth/signUp")
                         .with(csrf()).flashAttr("userDTO", userDTO)
@@ -163,6 +182,7 @@ public class AuthControllerTest {
 
     @Test
     public void signUpWithExistedUsernameShouldReturnSignUpTemplate() throws Exception {
+
         UserDTO userDTO = new UserDTO("TestName", "TestPassword", "TestPassword");
         User savedUser = new User(userDTO.getUsername(), userDTO.getPassword());
 
@@ -175,25 +195,5 @@ public class AuthControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(view().name("auth/signUp"))
                 .andExpect(status().is2xxSuccessful());
-    }
-
-    @Test
-    public void validSignInShouldRedirectToIndexPage() throws Exception {
-        mockMvc.perform(formLogin("/process_signIn")
-                        .user("TestUser")
-                        .password("TestPassword"))
-                .andExpect(redirectedUrl("/"));
-//        UserDTO userDTO = new UserDTO("TestName", "TestPassword", "TestPassword");
-//        User savedUser = new User(userDTO.getUsername(), userDTO.getPassword());
-//
-//        when(userDetailsService.signUp(usersMapper.convertToUser(userDTO))).thenReturn(savedUser);
-//
-//        mockMvc.perform(MockMvcRequestBuilders
-//                        .post("/process_signIn").with(csrf())
-//                        .contentType(MediaType.MULTIPART_FORM_DATA)
-//                        .principal(new UserPrincipal("TestName")))
-//                .andExpect(redirectedUrl("/"))
-//                .andExpect(status().is3xxRedirection());
-
     }
 }

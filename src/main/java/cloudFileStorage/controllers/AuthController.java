@@ -1,12 +1,12 @@
 package cloudFileStorage.controllers;
 
 import cloudFileStorage.dto.UserDTO;
-import cloudFileStorage.exceptions.StorageException;
 import cloudFileStorage.models.User;
 import cloudFileStorage.services.CustomUserDetailsService;
 import cloudFileStorage.services.UserObjectsService;
 import cloudFileStorage.utils.UsersMapper;
 import cloudFileStorage.utils.UsersValidator;
+import io.minio.errors.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,18 +16,22 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
 @Controller
 @RequestMapping("/auth")
 public class AuthController extends BaseController {
     private final CustomUserDetailsService customUserDetailsService;
     private final UserObjectsService userObjectsService;
-
     private final UsersValidator usersValidator;
     private final UsersMapper usersMapper;
 
     @Autowired
     public AuthController(CustomUserDetailsService customUserDetailsService, UserObjectsService userObjectsService,
                           UsersValidator usersValidator, UsersMapper usersMapper) {
+
         this.customUserDetailsService = customUserDetailsService;
         this.userObjectsService = userObjectsService;
         this.usersValidator = usersValidator;
@@ -45,7 +49,10 @@ public class AuthController extends BaseController {
     }
 
     @PostMapping("/signUp")
-    public String signUp(@ModelAttribute("userDTO") @Valid UserDTO userDTO, BindingResult bindingResult) throws StorageException {
+    public String signUp(@ModelAttribute("userDTO") @Valid UserDTO userDTO, BindingResult bindingResult) throws ServerException,
+            InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
+
         usersValidator.validate(userDTO, bindingResult);
 
         if (bindingResult.hasErrors()) {
