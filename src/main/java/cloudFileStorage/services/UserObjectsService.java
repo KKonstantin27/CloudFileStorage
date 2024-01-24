@@ -90,7 +90,7 @@ public class UserObjectsService {
             String shortUserObjectName = userObjectsUtil.getShortUserObjectName(userObject.get().objectName());
             String userObjectPath = userObjectsUtil.buildUserObjectPathWithoutStorageName(userObject.get().objectName());
 
-            if (searchQuery.equals(shortUserObjectName) && userObjectsUtil.isDir(userObjectName)) {
+            if (searchQuery.equalsIgnoreCase(shortUserObjectName) && userObjectsUtil.isDir(userObjectName)) {
                 userFolderDTOList.add(new UserFolderDTO(
                         userObjectName,
                         shortUserObjectName,
@@ -98,7 +98,7 @@ public class UserObjectsService {
                         userObjectPath));
             }
 
-            if (searchQuery.equals(shortUserObjectName) && !userObjectsUtil.isDir(userObject.get().objectName())) {
+            if (searchQuery.equalsIgnoreCase(shortUserObjectName) && !userObjectsUtil.isDir(userObject.get().objectName())) {
                 userFileDTOList.add(new UserFileDTO(
                         userObjectName,
                         shortUserObjectName,
@@ -161,7 +161,7 @@ public class UserObjectsService {
             try (InputStream is = userObjectsDAO.downloadUserObject(userObject.get().objectName())) {
                 zos.putNextEntry(new ZipEntry(userObjectsUtil.buildUserObjectNameWithoutStorageName(userObject.get().objectName())));
 
-                byte[] buffer = new byte[4096];
+                byte[] buffer = new byte[8192];
                 int bytesRead;
 
                 while ((bytesRead = is.read(buffer)) != -1) {

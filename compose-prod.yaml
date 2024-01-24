@@ -1,15 +1,28 @@
 version: "3"
 services:
   cloud-file-storage:
-    FROM openjdk:8-jdk-alpine
-    RUN addgroup -S spring && adduser -S spring -G spring
-    USER spring:spring
-    ARG JAR_FILE=target/*.jar
-    COPY ${JAR_FILE} app.jar
-    ENTRYPOINT ["java","-jar","/app.jar"]
-    build: .
+    image: crystalised/cloud-file-storage
     ports:
-      - '8080:8080'
+      - '9091:8080'
+    restart: always
+    depends_on:
+      - mysql
+      - minio
+      - redis
+    environment:
+      - 'MYSQL_HOST=mysql'
+      - 'MYSQL_PORT=3306'
+      - 'MYSQL_DATABASE=CloudFileStorage'
+      - 'MYSQL_USER=CFS_User'
+      - 'MYSQL_PASSWORD=password'
+      - 'MYSQL_ROOT_PASSWORD=password'
+      - 'REDIS_HOST=redis'
+      - 'REDIS_PORT=6379'
+      - 'MINIO_HOST=minio'
+      - 'MINIO_PORT=9000'
+      - 'MINIO_ROOT_USER=minio'
+      - 'MINIO_ROOT_PASSWORD=password'
+      - 'MINIO_BUCKET_NAME=user-files'
   mysql:
     image: mysql
     restart: always
@@ -29,18 +42,13 @@ services:
     restart: always
     ports:
       - '9000:9000'
-      - '9090:9090'
+      - '9001:9090'
     environment:
       - 'MINIO_ROOT_USER=minio'
       - 'MINIO_ROOT_PASSWORD=password'
       - 'MINIO_BUCKET_NAME=user-files'
     volumes:
       - minio_data:/data
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - '8888:8080'
   redis:
     image: 'redis:latest'
     ports:

@@ -4,6 +4,25 @@ services:
     build: .
     ports:
       - '8080:8080'
+    restart: always
+    depends_on:
+      - mysql
+      - minio
+      - redis
+    environment:
+      - 'MYSQL_HOST=mysql'
+      - 'MYSQL_PORT=3306'
+      - 'MYSQL_DATABASE=CloudFileStorage'
+      - 'MYSQL_USER=CFS_User'
+      - 'MYSQL_PASSWORD=password'
+      - 'MYSQL_ROOT_PASSWORD=password'
+      - 'REDIS_HOST=redis'
+      - 'REDIS_PORT=6379'
+      - 'MINIO_HOST=minio'
+      - 'MINIO_PORT=9000'
+      - 'MINIO_ROOT_USER=minio'
+      - 'MINIO_ROOT_PASSWORD=password'
+      - 'MINIO_BUCKET_NAME=user-files'
   mysql:
     image: mysql
     restart: always
@@ -23,18 +42,13 @@ services:
     restart: always
     ports:
       - '9000:9000'
-      - '9090:9090'
+      - '9001:9090'
     environment:
       - 'MINIO_ROOT_USER=minio'
       - 'MINIO_ROOT_PASSWORD=password'
       - 'MINIO_BUCKET_NAME=user-files'
     volumes:
       - minio_data:/data
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - '8888:8080'
   redis:
     image: 'redis:latest'
     ports:
