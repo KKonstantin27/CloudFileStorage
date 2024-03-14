@@ -18,7 +18,7 @@
 <li>Java</li>
 <li>Gradle</li>
 <li>Spring Boot, Spring Security, Spring Sessions</li>
-<li>SQL(MySQL)</li>
+<li>SQL(PostgreSQL)</li>
 <li>NoSQL(Redis, MinIO)</li>
 <li>Upload файлов, заголовки HTTP запросов, cookies, сессии</li>
 <li>Thymeleaf</li>
@@ -93,7 +93,7 @@
 <p>Сессии сохраняются в Redis</p>
 
 <h2>SQL база данных</h2>
-<p>Для хранения пользователей используется MySQL в интеграции со Spring Security</p>
+<p>Для хранения пользователей используется PostgreSQL в интеграции со Spring Security</p>
 
 <h2>Хранилище файлов S3</h2>
 <p>Для хранения файлов используется S3 совместимое хранилище MinIO.</p>
