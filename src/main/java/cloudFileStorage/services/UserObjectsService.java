@@ -11,6 +11,7 @@ import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
+@Transactional(readOnly = true)
 public class UserObjectsService {
     private final UserObjectsDAO userObjectsDAO;
     private final UserObjectsUtil userObjectsUtil;
@@ -38,6 +40,7 @@ public class UserObjectsService {
         this.userObjectsUtil = userObjectsUtil;
     }
 
+    @Transactional
     public void createUserStorage(String userStorageName) throws ServerException, InsufficientDataException, ErrorResponseException,
             IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
 
@@ -110,6 +113,7 @@ public class UserObjectsService {
         return userObjectsUtil.sortUserObjectDTOList(userFolderDTOList, userFileDTOList);
     }
 
+    @Transactional
     public void createUserFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException,
             ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException,
             XmlParserException, InternalException {
@@ -121,6 +125,7 @@ public class UserObjectsService {
         userObjectsDAO.createUserFolder(newUserFolderName);
     }
 
+    @Transactional
     public void uploadUserFolder(String userStorageName, String path, MultipartFile[] userObjects) throws ServerException,
             InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
             InvalidResponseException, XmlParserException, InternalException {
@@ -149,6 +154,7 @@ public class UserObjectsService {
         }
     }
 
+
     public void downloadUserFolder(String userStorageName, UserFolderDTO userFolderDTO, ZipOutputStream zos) throws IOException,
             ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException,
             InvalidResponseException, XmlParserException, InternalException {
@@ -173,6 +179,7 @@ public class UserObjectsService {
         }
     }
 
+    @Transactional
     public void renameUserFolder(String userStorageName, String oldShortUserFolderName, UserFolderDTO userFolderDTO) throws ServerException,
             InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
             InvalidResponseException, XmlParserException, InternalException {
@@ -195,6 +202,7 @@ public class UserObjectsService {
         userObjectsDAO.deleteUserObject(oldUserFolderName);
     }
 
+    @Transactional
     public void deleteUserFolder(String userStorageName, UserFolderDTO userFolderDTO) throws ServerException, InsufficientDataException,
             ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException,
             XmlParserException, InternalException {
@@ -210,6 +218,7 @@ public class UserObjectsService {
         userObjectsDAO.deleteUserFolderWithContent(objectsForDeleting);
     }
 
+    @Transactional
     public void uploadUserFiles(String userStorageName, String path, MultipartFile[] userFiles) throws ServerException,
             InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
             InvalidResponseException, XmlParserException, InternalException {
@@ -229,6 +238,7 @@ public class UserObjectsService {
         }
     }
 
+    @Transactional
     public void renameUserFile(String userStorageName, String oldShortUserFileName, UserFileDTO userFileDTO) throws ServerException,
             InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
             InvalidResponseException, XmlParserException, InternalException {
@@ -241,6 +251,7 @@ public class UserObjectsService {
         userObjectsDAO.deleteUserObject(oldUserFileName);
     }
 
+    @Transactional
     public void deleteUserFile(String userStorageName, UserFileDTO userFileDTO) throws ServerException, InsufficientDataException,
             ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException,
             XmlParserException, InternalException {
