@@ -11,7 +11,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MinIOContainer;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -28,10 +28,10 @@ public class UserObjectsUtilTest {
     private static final String TEST_USER_STORAGE_NAME = "user-1-files/";
     private static final String FOLDER_DELIMITER = "/";
     @Container
-    private static final MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql")
+    private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres")
             .withInitScript("scripts/init-test.sql")
-            .withExposedPorts(3306)
-            .withUsername("CFS_Test_User")
+            .withExposedPorts(5432)
+            .withUsername("postgres")
             .withPassword("CFS_Test_password")
             .withDatabaseName("CloudFileStorageTest");
 
@@ -53,9 +53,9 @@ public class UserObjectsUtilTest {
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mySQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", mySQLContainer::getUsername);
-        registry.add("spring.datasource.password", mySQLContainer::getPassword);
+        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
+        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
         registry.add("minio.client-user", minioContainer::getUserName);
         registry.add("minio.client-password", minioContainer::getPassword);
         registry.add("minio.client-endpoint", minioContainer::getS3URL);
